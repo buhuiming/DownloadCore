@@ -4,6 +4,8 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/workspace/github_/DownloadCore/app/src/main/res/layout/activity_main.xml" value="0.3536458333333333" />
+        <entry key="..\:/workspace/github_/DownloadCore/demo/src/main/res/layout/activity_main.xml" value="0.3536458333333333" />
+        <entry key="..\:/workspace/github_/DownloadCore/demo/src/main/res/layout/recycler_item_download.xml" value="0.3536458333333333" />
       </map>
     </option>
   </component>
