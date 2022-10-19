@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bhm.downloadcore">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:name="com.bhm.support.sdk.common.BaseApplication"
         android:allowBackup="true"
