@@ -22,7 +22,7 @@
         android:text="下载文件名"/>
 
     <Button
-        android:id="@+id/btnDelete"
+        android:id="@+id/btnRestart"
         android:layout_width="wrap_content"
         android:layout_height="30dp"
         android:layout_marginStart="0dp"

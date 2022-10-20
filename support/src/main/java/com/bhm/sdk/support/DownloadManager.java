@@ -14,8 +14,6 @@ import okhttp3.OkHttpClient;
  */
 class DownloadManager {
 
-    static final String SP_FILE_NAME = "download_list";
-
     private static DownloadManager instance;
 
     private final HashMap<String, Call> downloadCallHashMap;
@@ -43,5 +41,9 @@ class DownloadManager {
                 .build();
         okHttpClient.dispatcher().setMaxRequestsPerHost(config.getMaxDownloadSize());//每个主机最大请求数为
         okHttpClient.dispatcher().setMaxRequests(config.getMaxDownloadSize());//最大并发请求数为
+    }
+
+    void startDownload() {
+
     }
 }

@@ -8,7 +8,7 @@ package com.bhm.sdk.support
 enum class DownLoadStatus {
     INITIAL,  //未开始/初始状态
     WAITING,  //等待中
-    STOP,  //下载失败
+    STOP,  //下载暂停
     DOWNING,  //下载中
     COMPETE,  //下载完成/成功
     FAIL //下载失败

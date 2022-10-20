@@ -2,9 +2,8 @@ package com.bhm.downloadcore
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import com.bhm.downloadcore.databinding.RecyclerItemDownloadBinding
-import com.bhm.sdk.support.DownLoadFileModel
+import com.bhm.sdk.support.DownLoadStatus
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 
@@ -14,8 +13,8 @@ import com.chad.library.adapter.base.viewholder.BaseViewHolder
  */
 class DownloadListAdapter (
     layoutResId: Int,
-    data: MutableList<DownLoadFileModel>?
-) : BaseQuickAdapter<DownLoadFileModel, DownloadListAdapter.VH>(layoutResId, data) {
+    data: MutableList<FileModel>?
+) : BaseQuickAdapter<FileModel, DownloadListAdapter.VH>(layoutResId, data) {
 
     class VH(
         parent: ViewGroup,
@@ -28,9 +27,55 @@ class DownloadListAdapter (
         return VH(parent)
     }
 
-    override fun convert(holder: VH, item: DownLoadFileModel) {
+    override fun convert(holder: VH, item: FileModel) {
         item.let {
-
+            holder.binding.tvName.text = item.fileName
+            addChildClickViewIds(R.id.btnRestart, R.id.btnChange)
+            when (item.status) {
+                DownLoadStatus.INITIAL -> {
+                    holder.binding.btnRestart.isEnabled = false
+                    holder.binding.btnChange.isEnabled = true
+                    holder.binding.btnChange.text = "未开始"
+                }
+                DownLoadStatus.WAITING -> {
+                    holder.binding.btnRestart.isEnabled = false
+                    holder.binding.btnChange.isEnabled = true
+                    holder.binding.btnChange.text = "等待中"
+                }
+                DownLoadStatus.STOP -> {
+                    holder.binding.btnRestart.isEnabled = false
+                    holder.binding.btnChange.isEnabled = true
+                    holder.binding.btnChange.text = buildString {
+                        append("停止")
+                        append(item.progress)
+                        append("%")
+                    }
+                }
+                DownLoadStatus.DOWNING -> {
+                    holder.binding.btnRestart.isEnabled = false
+                    holder.binding.btnChange.isEnabled = true
+                    holder.binding.btnChange.text = buildString {
+                        append("下载")
+                        append(item.progress)
+                        append("%")
+                    }
+                }
+                DownLoadStatus.COMPETE -> {
+                    holder.binding.btnRestart.isEnabled = false
+                    holder.binding.btnChange.isEnabled = true
+                    holder.binding.btnChange.text = "下载完成"
+                }
+                DownLoadStatus.FAIL -> {
+                    holder.binding.btnRestart.isEnabled = false
+                    holder.binding.btnChange.isEnabled = true
+                    holder.binding.btnChange.text = buildString {
+                        append("失败")
+                        append(item.progress)
+                        append("%")
+                    }
+                }
+                else -> {}
+            }
         }
     }
 }

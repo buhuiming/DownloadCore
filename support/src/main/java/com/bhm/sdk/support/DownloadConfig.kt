@@ -24,6 +24,7 @@ class DownloadConfig private constructor(builder: Builder) {
         private const val READ_TIMEOUT = 30
         private const val CONNECT_TIMEOUT = 15
         private const val MAX_DOWNING_SIZE = 1 //最大同时下载数量
+        const val SP_FILE_NAME = "download_list"
     }
 
     init {

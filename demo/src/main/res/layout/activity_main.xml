@@ -39,18 +39,36 @@
             android:text="全部开始"/>
 
         <Button
-            android:id="@+id/btnAllStop"
+            android:id="@+id/btnAllPause"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="40dp"
             android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
             android:textColor="@color/white"
             android:gravity="center"
+            android:enabled="false"
             android:textSize="14sp"
             android:padding="0dp"
             android:background="@color/purple_500"
             app:bl_solid_color="@color/purple_500"
             app:bl_corners_radius="8dp"
             android:text="全部暂停"/>
+
+        <Button
+            android:id="@+id/btnAllRemove"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="40dp"
+            android:layout_marginStart="10dp"
+            android:textColor="@color/white"
+            android:gravity="center"
+            android:enabled="false"
+            android:textSize="14sp"
+            android:padding="0dp"
+            android:background="@color/purple_500"
+            app:bl_solid_color="@color/purple_500"
+            app:bl_corners_radius="8dp"
+            android:text="全部删除"/>
     </androidx.appcompat.widget.LinearLayoutCompat>
 </androidx.appcompat.widget.LinearLayoutCompat>

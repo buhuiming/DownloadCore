@@ -18,11 +18,6 @@ public class DownloadRequest implements IRequest{
     }
 
     @Override
-    public boolean startDownloads(String[] urls) {
-        return false;
-    }
-
-    @Override
     public boolean startAllDownloads() {
         return false;
     }
@@ -33,22 +28,12 @@ public class DownloadRequest implements IRequest{
     }
 
     @Override
-    public boolean pauseDownloads(String[] urls) {
-        return false;
-    }
-
-    @Override
     public boolean pauseAllDownloads() {
         return false;
     }
 
     @Override
     public boolean removeDownload(String url) {
-        return false;
-    }
-
-    @Override
-    public boolean removeDownloads(String[] urls) {
         return false;
     }
 
