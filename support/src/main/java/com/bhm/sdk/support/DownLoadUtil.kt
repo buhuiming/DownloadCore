@@ -4,7 +4,6 @@ import android.content.Context
 import android.text.TextUtils
 import android.util.Log
 import java.io.File
-import java.math.BigDecimal
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
@@ -88,5 +87,27 @@ object DownLoadUtil {
             ) else md5StrBuff.append(Integer.toHexString(0xFF and b.toInt()))
         }
         return md5StrBuff.toString()
+    }
+
+    /**
+     * 清空文件夹
+     */
+    fun clearDir(dir: File?, isDeleteDir: Boolean) {
+        dir?.let {
+            if (it.exists()) { // 判断文件是否存在
+                if (it.isFile) { // 判断是否是文件
+                    it.delete() // 删除文件
+                } else if (it.isDirectory) { // 否则如果它是一个目录
+                    val files = it.listFiles() // 声明目录下所有的文件 files[];
+                    files?.indices?.forEach { i ->
+                        // 遍历目录下所有的文件
+                        clearDir(files[i], true) // 把每个文件用这个方法进行迭代
+                    }
+                    if (isDeleteDir) {
+                        it.delete() // 删除文件夹
+                    }
+                }
+            }
+        }
     }
 }

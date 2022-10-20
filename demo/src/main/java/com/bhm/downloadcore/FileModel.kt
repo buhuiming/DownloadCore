@@ -10,11 +10,11 @@ import java.io.File
  */
 data class FileModel(
 
-    var downLoadUrl: String? = null, //下载链接
+    var downLoadUrl: String = "", //下载链接
 
-    var fileName: String? = null, //文件名
+    var fileName: String = "", //文件名
 
-    var status: DownLoadStatus? = DownLoadStatus.INITIAL, //下载状态
+    var status: DownLoadStatus = DownLoadStatus.INITIAL, //下载状态
 
     var progress: Float = 0f, //下载进度，保留一位小数点
 

@@ -23,7 +23,7 @@ class DownloadConfig private constructor(builder: Builder) {
         private const val WRITE_TIMEOUT = 30
         private const val READ_TIMEOUT = 30
         private const val CONNECT_TIMEOUT = 15
-        private const val MAX_DOWNING_SIZE = 1 //最大同时下载数量
+        const val MAX_DOWNING_SIZE = 1 //最大同时下载数量
         const val SP_FILE_NAME = "download_list"
     }
 
@@ -49,6 +49,10 @@ class DownloadConfig private constructor(builder: Builder) {
 
     fun getConnectTimeout(): Int {
         return if (connectTimeout == 0) CONNECT_TIMEOUT else connectTimeout
+    }
+
+    fun getDownloadParentPath(): String? {
+        return downloadParentPath
     }
 
     class Builder {

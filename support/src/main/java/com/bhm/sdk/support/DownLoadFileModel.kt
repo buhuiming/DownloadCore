@@ -10,9 +10,9 @@ import java.io.File
  */
 data class DownLoadFileModel(
 
-    var downLoadUrl: String? = null, //下载链接
+    var downLoadUrl: String = "", //下载链接
 
-    var localParentPath: String? = null, //本地存储地址，不包含名字
+    var localParentPath: String = "", //本地存储地址，不包含名字
 
     var localPath: String? = null,//本地存储地址
 

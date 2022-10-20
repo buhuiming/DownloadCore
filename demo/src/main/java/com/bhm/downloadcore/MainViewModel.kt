@@ -7,9 +7,11 @@ import android.os.Build
 import androidx.core.content.FileProvider
 import androidx.lifecycle.MutableLiveData
 import com.bhm.sdk.support.DownLoadUtil
+import com.bhm.sdk.support.DownloadCallBack
 import com.bhm.sdk.support.DownloadConfig
 import com.bhm.sdk.support.DownloadRequest
 import com.bhm.support.sdk.common.BaseViewModel
+import timber.log.Timber
 import java.io.File
 
 /**
@@ -23,11 +25,13 @@ class MainViewModel(private val context: Application) : BaseViewModel(context = 
 
     val downloadList = MutableLiveData<ArrayList<FileModel>>()
 
+    private val callBackList = HashMap<String, (DownloadCallBack.() -> Unit)?>()
+
     private var parentPath: String? = null
 
     fun initDownloadManager() {
         parentPath = context.getExternalFilesDir("downloadFiles")?.absolutePath
-        downloadRequest = DownloadRequest()
+        downloadRequest = DownloadRequest(context)
         val downloadConfig: DownloadConfig = DownloadConfig.Builder()
             .setMaxDownloadSize(3)
             .setWriteTimeout(30)
@@ -47,37 +51,69 @@ class MainViewModel(private val context: Application) : BaseViewModel(context = 
             FileModel(downLoadUrl = Constants.urls[4], fileName = DownLoadUtil.getMD5FileName(Constants.urls[4])),
         )
         downloadList.postValue(list)
+
+        list.forEach {
+            callBackList[it.downLoadUrl] = {
+                onWaiting { model->
+                    Timber.d("onWaiting: " + model.downLoadUrl)
+                }
+                onProgress { model->
+                    Timber.d("url: " + model.downLoadUrl)
+                    Timber.d(
+                        "totalLength: " + model.totalLength.toString() + ", totalReadBytes: " +
+                                model.downLoadLength.toString() + ", progress: " + model.progress
+                    )
+                }
+                onStop { model->
+                    Timber.d("onStop")
+                }
+                onComplete { model->
+                    Timber.d("onComplete")
+                }
+                onFail { dLFModel, throwable ->
+                    Timber.d("onFail")
+                }
+                saveFile { dLFModel ->
+
+                }
+            }
+        }
     }
 
-    fun startDownload(url: String?) {
-        downloadRequest?.startDownload(url)
+    fun startDownload(url: String) {
+        downloadRequest?.startDownload(url, callBackList[url])
     }
 
     fun startAllDownloads() {
-        downloadRequest?.startAllDownloads()
+        callBackList.forEach {
+            startDownload(it.key)
+        }
     }
 
-    fun restartDownload(url: String?) {
-        //删除已下载文件
-        downloadRequest?.startDownload(url)
+    fun restartDownload(url: String) {
+        downloadRequest?.reStartDownload(url, callBackList[url])
     }
 
-    fun pauseDownload(url: String?) {
-        downloadRequest?.pauseDownload(url)
+    fun pauseDownload(url: String) {
+        downloadRequest?.pauseDownload(url, callBackList[url])
     }
 
     fun pauseAllDownloads() {
-        downloadRequest?.pauseAllDownloads()
+        callBackList.forEach {
+            pauseDownload(it.key)
+        }
     }
 
-    fun removeDownload(url: String?) {
+    fun removeDownload(url: String) {
         //删除已下载文件
-        downloadRequest?.removeDownload(url)
+        downloadRequest?.removeDownload(url, callBackList[url])
     }
 
     fun removeAllDownloads() {
         //全部删除已下载文件
-        downloadRequest?.removeAllDownloads()
+        callBackList.forEach {
+            removeDownload(it.key)
+        }
     }
 
     fun openFile(fileName: String?) {

@@ -1,6 +1,5 @@
 package com.bhm.sdk.support
 
-import com.bhm.sdk.support.DownLoadFileModel
 import java.io.InputStream
 
 /**
@@ -18,7 +17,7 @@ interface IDownLoadCallBack {
 
     fun onProgress(dLFModel: DownLoadFileModel)
 
-    fun saveFile(dLFModel: DownLoadFileModel, inputString: InputStream, byteLength: Long)
+    fun saveFile(dLFModel: DownLoadFileModel)
 
     fun onFail(dLFModel: DownLoadFileModel, throwable: Throwable)
 }
