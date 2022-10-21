@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit
  */
 internal class DownloadManager private constructor(private val context: Application) {
 
-    private val downloadCallHashMap: ConcurrentHashMap<DownLoadFileModel, Call> = ConcurrentHashMap()
+    private val downloadCallHashMap: ConcurrentHashMap<Call, DownLoadFileModel> = ConcurrentHashMap()
 
     private var okHttpClient: OkHttpClient? = null
 
@@ -58,6 +58,12 @@ internal class DownloadManager private constructor(private val context: Applicat
         return startDownload(fileModel, callBack)
     }
 
+    fun reStartDownload(url: String, callBack: IDownLoadCallBack): Boolean {
+        deleteFile(url)
+        val fileModel = buildModel(url)
+        return startDownload(fileModel, callBack)
+    }
+
     private fun startDownload(fileModel: DownLoadFileModel, callBack: IDownLoadCallBack): Boolean {
         if (DownLoadUtil.checkExistFullFile(context,
                 fileModel.downLoadUrl,
@@ -69,7 +75,7 @@ internal class DownloadManager private constructor(private val context: Applicat
             return false
         }
         downloadCallHashMap.forEach {
-            if (it.key.downLoadUrl == fileModel.downLoadUrl) {
+            if (it.value.downLoadUrl == fileModel.downLoadUrl) {
                 //已经添加下载了
                 Log.i(DownloadManager::class.simpleName, "file is already add to download")
                 return false
@@ -91,7 +97,7 @@ internal class DownloadManager private constructor(private val context: Applicat
 
         // 使用OkHttp请求服务器
         val call = okHttpClient!!.newCall(request)
-        downloadCallHashMap[fileModel] = call
+        downloadCallHashMap[call] = fileModel
         Log.i(DownloadManager::class.simpleName, "add a download")
 //        call.execute(); 这个数同步操作
         call.enqueue(object : Callback {
@@ -122,24 +128,29 @@ internal class DownloadManager private constructor(private val context: Applicat
         return false
     }
 
-    fun reStartDownload(url: String, callBack: IDownLoadCallBack): Boolean {
-        val fileModel = buildModel(url)
-        DownLoadUtil.clearDir(fileModel.downLoadFile, true)
+    private fun deleteFile(url: String) {
+        val fileName: String = DownLoadUtil.getMD5FileName(url)
+        val parentPath: String = downloadConfig?.getDownloadParentPath()?: ""
+        val file = File(parentPath)
+        if (!file.exists()) {
+            file.mkdirs()
+        }
+        val downLoadFile = File(file, fileName)
+        DownLoadUtil.clearDir(downLoadFile, true)
         SPUtil.removeKeyValue(
             context,
             SP_FILE_NAME,
-            fileModel.downLoadUrl
+            url
         )
         removeDownload(url)
-        return startDownload(fileModel, callBack)
     }
 
     fun pauseDownload(url: String, callBack: IDownLoadCallBack): Boolean{
         downloadCallHashMap.forEach {
-            if (it.key.downLoadUrl == url) {
-                val call: Call = it.value
+            if (it.value.downLoadUrl == url) {
+                val call: Call = it.key
                 call.cancel()
-                callBack.onStop(it.key)
+                callBack.onStop(it.value)
                 Log.i(DownloadManager::class.simpleName, "cancel download")
                 return true
             }
@@ -148,19 +159,15 @@ internal class DownloadManager private constructor(private val context: Applicat
         return false
     }
 
+    @Synchronized
     fun removeDownload(url: String, callBack: IDownLoadCallBack): Boolean {
         val iterator = downloadCallHashMap.iterator()
         while (iterator.hasNext()) {
             val model = iterator.next()
-            if (model.key.downLoadUrl == url) {
+            if (model.value.downLoadUrl == url) {
                 iterator.remove()
-                DownLoadUtil.clearDir(model.key.downLoadFile, true)
-                SPUtil.removeKeyValue(
-                    context,
-                    SP_FILE_NAME,
-                    url
-                )
-                callBack.onStop(model.key)
+                deleteFile(url)
+                callBack.onStop(model.value)
                 Log.i(DownloadManager::class.simpleName, "remove download url")
                 return true
             }
@@ -171,16 +178,13 @@ internal class DownloadManager private constructor(private val context: Applicat
 
     @Synchronized
     private fun removeDownload(url: String): Boolean {
-//        val hashMap: ConcurrentHashMap<DownLoadFileModel, Call> = ConcurrentHashMap()
-//        hashMap[downloadCallHashMap.keys.toMutableList()[0]] = downloadCallHashMap.values.toMutableList()[0]
         Log.i(DownloadManager::class.simpleName, "remove download url downloadCallHashMap：" + downloadCallHashMap.size)
         val iterator = downloadCallHashMap.iterator()
         while (iterator.hasNext()) {
             val model = iterator.next()
-            if (model.key.downLoadUrl == url) {
+            if (model.value.downLoadUrl == url) {
                 iterator.remove()
                 Log.i(DownloadManager::class.simpleName, "remove download url downloadCallHashMap2：" + downloadCallHashMap.size)
-                return true
             }
         }
         Log.i(DownloadManager::class.simpleName, "remove download fail")

@@ -42,7 +42,7 @@ class DownloadListAdapter (
                     holder.binding.btnChange.text = "等待中"
                 }
                 DownLoadStatus.STOP -> {
-                    holder.binding.btnRestart.isEnabled = false
+                    holder.binding.btnRestart.isEnabled = true
                     holder.binding.btnChange.isEnabled = true
                     holder.binding.btnChange.text = buildString {
                         append("停止")
@@ -60,12 +60,12 @@ class DownloadListAdapter (
                     }
                 }
                 DownLoadStatus.COMPETE -> {
-                    holder.binding.btnRestart.isEnabled = false
+                    holder.binding.btnRestart.isEnabled = true
                     holder.binding.btnChange.isEnabled = true
                     holder.binding.btnChange.text = "下载完成"
                 }
                 DownLoadStatus.FAIL -> {
-                    holder.binding.btnRestart.isEnabled = false
+                    holder.binding.btnRestart.isEnabled = true
                     holder.binding.btnChange.isEnabled = true
                     holder.binding.btnChange.text = buildString {
                         append("失败")
