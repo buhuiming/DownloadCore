@@ -30,7 +30,7 @@ class MainViewModel(private val context: Application) : BaseViewModel(context = 
         parentPath = context.getExternalFilesDir("downloadFiles")?.absolutePath
         downloadRequest = DownloadRequest(context)
         val downloadConfig: DownloadConfig = DownloadConfig.Builder()
-            .setMaxDownloadSize(3)
+            .setMaxDownloadSize(2)
             .setWriteTimeout(30)
             .setReadTimeout(30)
             .setConnectTimeout(15)
@@ -154,15 +154,15 @@ class MainViewModel(private val context: Application) : BaseViewModel(context = 
         }
     }
 
-    fun removeDownload(url: String) {
+    fun deleteDownload(url: String) {
         //删除已下载文件
-        downloadRequest?.removeDownload(url, callBackList[url])
+        downloadRequest?.deleteDownload(url, callBackList[url])
     }
 
-    fun removeAllDownloads() {
+    fun deleteAllDownloads() {
         //全部删除已下载文件
         callBackList.forEach {
-            removeDownload(it.key)
+            deleteDownload(it.key)
         }
     }
 

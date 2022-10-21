@@ -8,6 +8,7 @@ import com.bhm.sdk.support.DownLoadStatus
 import com.bhm.support.sdk.common.BaseVBActivity
 import com.bhm.support.sdk.core.AppTheme
 import com.bhm.support.sdk.interfaces.PermissionCallBack
+import timber.log.Timber
 
 class MainActivity : BaseVBActivity<MainViewModel, ActivityMainBinding>() {
 
@@ -35,7 +36,7 @@ class MainActivity : BaseVBActivity<MainViewModel, ActivityMainBinding>() {
         super.initEvent()
         viewBinding.btnAllStart.setOnClickListener { viewModel.startAllDownloads() }
         viewBinding.btnAllPause.setOnClickListener { viewModel.pauseAllDownloads() }
-        viewBinding.btnAllRemove.setOnClickListener { viewModel.removeAllDownloads() }
+        viewBinding.btnAllDelete.setOnClickListener { viewModel.deleteAllDownloads() }
         listAdapter?.addChildClickViewIds(R.id.btnRestart, R.id.btnChange)
         listAdapter?.setOnItemChildClickListener { adapter, view, position ->
             val model = adapter.data[position] as FileModel
@@ -51,7 +52,7 @@ class MainActivity : BaseVBActivity<MainViewModel, ActivityMainBinding>() {
                             viewModel.startDownload(model.downLoadUrl)
                         }
                         DownLoadStatus.WAITING -> {
-                            viewModel.removeDownload(model.downLoadUrl)
+                            viewModel.deleteDownload(model.downLoadUrl)
                         }
                         DownLoadStatus.DOWNING -> {
                             viewModel.pauseDownload(model.downLoadUrl)
@@ -91,7 +92,7 @@ class MainActivity : BaseVBActivity<MainViewModel, ActivityMainBinding>() {
     private fun refresh(downloadList: MutableList<FileModel>?) {
         var isAllStart = false
         var isAllPause = false
-        var isAllRemove = false
+        var isAllDelete = false
         downloadList?.forEach {
             when (it.status) {
                 DownLoadStatus.INITIAL -> {
@@ -99,22 +100,22 @@ class MainActivity : BaseVBActivity<MainViewModel, ActivityMainBinding>() {
                 }
                 DownLoadStatus.STOP -> {
                     isAllStart = true
-                    isAllRemove = true
+                    isAllDelete = true
                 }
                 DownLoadStatus.FAIL -> {
                     isAllStart = true
-                    isAllRemove = true
+                    isAllDelete = true
                 }
                 DownLoadStatus.WAITING -> {
                     isAllPause = true
-                    isAllRemove = true
+                    isAllDelete = true
                 }
                 DownLoadStatus.DOWNING -> {
                     isAllPause = true
-                    isAllRemove = true
+                    isAllDelete = true
                 }
                 DownLoadStatus.COMPETE -> {
-                    isAllRemove = true
+                    isAllDelete = true
                 }
                 else -> {}
             }
@@ -122,7 +123,7 @@ class MainActivity : BaseVBActivity<MainViewModel, ActivityMainBinding>() {
         if (downloadList?.isEmpty() == true) {
             isAllStart = false
             isAllPause = false
-            isAllRemove = false
+            isAllDelete = false
         } else {
             listAdapter?.let {
                 if (it.data.size == 0) {
@@ -136,6 +137,6 @@ class MainActivity : BaseVBActivity<MainViewModel, ActivityMainBinding>() {
         }
         viewBinding.btnAllStart.isEnabled = isAllStart
         viewBinding.btnAllPause.isEnabled = isAllPause
-        viewBinding.btnAllRemove.isEnabled = isAllRemove
+        viewBinding.btnAllDelete.isEnabled = isAllDelete
     }
 }

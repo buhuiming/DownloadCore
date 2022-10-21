@@ -37,11 +37,11 @@ class DownloadRequest(private val context: Application) : IRequest {
         return DownloadManager.getInstance(context)?.pauseDownload(url, call)
     }
 
-    override fun removeDownload(url: String, callBack: (DownloadCallBack.() -> Unit)?): Boolean? {
+    override fun deleteDownload(url: String, callBack: (DownloadCallBack.() -> Unit)?): Boolean? {
         val call = DownloadCallBack()
         callBack?.let {
             call.apply(it)
         }
-        return DownloadManager.getInstance(context)?.removeDownload(url, call)
+        return DownloadManager.getInstance(context)?.deleteDownload(url, call)
     }
 }
