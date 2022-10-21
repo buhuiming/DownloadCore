@@ -9,6 +9,8 @@ import java.io.InputStream
  */
 interface IDownLoadCallBack {
 
+    fun onInitialize(dLFModel: DownLoadFileModel)
+
     fun onWaiting(dLFModel: DownLoadFileModel)
 
     fun onStop(dLFModel: DownLoadFileModel)

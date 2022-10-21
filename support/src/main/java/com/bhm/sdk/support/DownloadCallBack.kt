@@ -10,6 +10,8 @@ import android.os.Looper
  */
 class DownloadCallBack : IDownLoadCallBack{
 
+    private var _initialize: ((dLFModel: DownLoadFileModel) -> Unit)? = null
+
     private var _waiting: ((dLFModel: DownLoadFileModel) -> Unit)? = null
 
     private var _stop: ((dLFModel: DownLoadFileModel) -> Unit)? = null
@@ -26,6 +28,10 @@ class DownloadCallBack : IDownLoadCallBack{
 
     private var lastProgress = 0f
 
+    fun onInitialize(value: (dLFModel: DownLoadFileModel) -> Unit) {
+        _initialize = value
+    }
+
     fun onWaiting(value: (dLFModel: DownLoadFileModel) -> Unit) {
         _waiting = value
     }
@@ -33,17 +39,26 @@ class DownloadCallBack : IDownLoadCallBack{
     fun onStop(value: (dLFModel: DownLoadFileModel) -> Unit) {
         _stop = value
     }
+
     fun onComplete(value: (dLFModel: DownLoadFileModel) -> Unit) {
         _complete = value
     }
+
     fun onProgress(value: (dLFModel: DownLoadFileModel) -> Unit) {
         _progress = value
     }
+
     fun saveFile(value: (dLFModel: DownLoadFileModel) -> Unit) {
         _save = value
     }
+
     fun onFail(value: (dLFModel: DownLoadFileModel, throwable: Throwable) -> Unit) {
         _fail = value
+    }
+
+    override fun onInitialize(dLFModel: DownLoadFileModel) {
+        dLFModel.status = DownLoadStatus.INITIAL
+        mainHandler.post { _initialize?.invoke(dLFModel) }
     }
 
     override fun onWaiting(dLFModel: DownLoadFileModel) {

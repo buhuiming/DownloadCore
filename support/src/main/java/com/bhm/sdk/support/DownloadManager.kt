@@ -161,15 +161,23 @@ internal class DownloadManager private constructor(private val context: Applicat
 
     @Synchronized
     fun removeDownload(url: String, callBack: IDownLoadCallBack): Boolean {
+        deleteFile(url)
+        val buildModel = buildModel(url)
+        if (downloadCallHashMap.size == 0) {
+            callBack.onInitialize(buildModel)
+            return true
+        }
         val iterator = downloadCallHashMap.iterator()
         while (iterator.hasNext()) {
             val model = iterator.next()
             if (model.value.downLoadUrl == url) {
+                model.key.cancel()
+                callBack.onInitialize(model.value)
                 iterator.remove()
-                deleteFile(url)
-                callBack.onStop(model.value)
                 Log.i(DownloadManager::class.simpleName, "remove download url")
                 return true
+            } else {
+                callBack.onInitialize(buildModel)
             }
         }
         Log.i(DownloadManager::class.simpleName, "remove download fail")

@@ -6,10 +6,7 @@ import android.net.Uri
 import android.os.Build
 import androidx.core.content.FileProvider
 import androidx.lifecycle.MutableLiveData
-import com.bhm.sdk.support.DownLoadUtil
-import com.bhm.sdk.support.DownloadCallBack
-import com.bhm.sdk.support.DownloadConfig
-import com.bhm.sdk.support.DownloadRequest
+import com.bhm.sdk.support.*
 import com.bhm.support.sdk.common.BaseViewModel
 import timber.log.Timber
 import java.io.File
@@ -44,16 +41,46 @@ class MainViewModel(private val context: Application) : BaseViewModel(context = 
 
     fun initDownloadList() {
         val list = arrayListOf(
-            FileModel(downLoadUrl = Constants.urls[0], fileName = DownLoadUtil.getMD5FileName(Constants.urls[0])),
-            FileModel(downLoadUrl = Constants.urls[1], fileName = DownLoadUtil.getMD5FileName(Constants.urls[1])),
-            FileModel(downLoadUrl = Constants.urls[2], fileName = DownLoadUtil.getMD5FileName(Constants.urls[2])),
-            FileModel(downLoadUrl = Constants.urls[3], fileName = DownLoadUtil.getMD5FileName(Constants.urls[3])),
-            FileModel(downLoadUrl = Constants.urls[4], fileName = DownLoadUtil.getMD5FileName(Constants.urls[4])),
+            FileModel(
+                downLoadUrl = Constants.urls[0],
+                fileName = DownLoadUtil.getMD5FileName(Constants.urls[0]),
+                status = getStatus(Constants.urls[0]),
+                progress = getProgress(Constants.urls[0])
+            ),
+            FileModel(
+                downLoadUrl = Constants.urls[1],
+                fileName = DownLoadUtil.getMD5FileName(Constants.urls[1]),
+                status = getStatus(Constants.urls[1]),
+                progress = getProgress(Constants.urls[1])
+            ),
+            FileModel(
+                downLoadUrl = Constants.urls[2],
+                fileName = DownLoadUtil.getMD5FileName(Constants.urls[2]),
+                status = getStatus(Constants.urls[2]),
+                progress = getProgress(Constants.urls[2])
+            ),
+            FileModel(
+                downLoadUrl = Constants.urls[3],
+                fileName = DownLoadUtil.getMD5FileName(Constants.urls[3]),
+                status = getStatus(Constants.urls[3]),
+                progress = getProgress(Constants.urls[3])
+            ),
+            FileModel(
+                downLoadUrl = Constants.urls[4],
+                fileName = DownLoadUtil.getMD5FileName(Constants.urls[4]),
+                status = getStatus(Constants.urls[4]),
+                progress = getProgress(Constants.urls[4])
+            ),
         )
         downloadList.postValue(list)
 
         list.forEach {
             callBackList[it.downLoadUrl] = {
+                onInitialize { model->
+                    Timber.d("onInitialize: " + model.downLoadUrl)
+                    it.status = model.status
+                    downloadList.postValue(list)
+                }
                 onWaiting { model->
                     Timber.d("onWaiting: " + model.downLoadUrl)
                     it.status = model.status
@@ -84,11 +111,23 @@ class MainViewModel(private val context: Application) : BaseViewModel(context = 
                     it.status = model.status
                     downloadList.postValue(list)
                 }
-                saveFile { model ->
-
-                }
             }
         }
+    }
+
+    private fun getStatus(url: String): DownLoadStatus {
+        if (DownLoadUtil.checkExistFullFile(context, url, parentPath!!)) {
+            return DownLoadStatus.COMPETE
+        }
+        val progress = getProgress(url)
+        if (progress > 0) {
+            return DownLoadStatus.STOP
+        }
+        return DownLoadStatus.INITIAL
+    }
+
+    private fun getProgress(url: String): Float {
+        return DownLoadUtil.getExistFileProgress(context, url, parentPath!!)
     }
 
     fun startDownload(url: String) {
