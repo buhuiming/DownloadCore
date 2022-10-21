@@ -10,6 +10,7 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.net.SocketException
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 
 /**
@@ -19,7 +20,7 @@ import java.util.concurrent.TimeUnit
  */
 internal class DownloadManager private constructor(private val context: Application) {
 
-    private val downloadCallHashMap: HashMap<DownLoadFileModel, Call> = HashMap()
+    private val downloadCallHashMap: ConcurrentHashMap<DownLoadFileModel, Call> = ConcurrentHashMap()
 
     private var okHttpClient: OkHttpClient? = null
 
@@ -51,7 +52,13 @@ internal class DownloadManager private constructor(private val context: Applicat
         okHttpClient?.dispatcher?.maxRequests = config.getMaxDownloadSize() //最大并发请求数为
     }
 
-    fun startDownload(fileModel: DownLoadFileModel, callBack: IDownLoadCallBack): Boolean {
+
+    fun startDownload(url: String, callBack: IDownLoadCallBack): Boolean {
+        val fileModel = buildModel(url)
+        return startDownload(fileModel, callBack)
+    }
+
+    private fun startDownload(fileModel: DownLoadFileModel, callBack: IDownLoadCallBack): Boolean {
         if (DownLoadUtil.checkExistFullFile(context,
                 fileModel.downLoadUrl,
                 fileModel.localParentPath
@@ -85,6 +92,7 @@ internal class DownloadManager private constructor(private val context: Applicat
         // 使用OkHttp请求服务器
         val call = okHttpClient!!.newCall(request)
         downloadCallHashMap[fileModel] = call
+        Log.i(DownloadManager::class.simpleName, "add a download")
 //        call.execute(); 这个数同步操作
         call.enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
@@ -114,13 +122,15 @@ internal class DownloadManager private constructor(private val context: Applicat
         return false
     }
 
-    fun reStartDownload(fileModel: DownLoadFileModel, callBack: IDownLoadCallBack): Boolean {
+    fun reStartDownload(url: String, callBack: IDownLoadCallBack): Boolean {
+        val fileModel = buildModel(url)
         DownLoadUtil.clearDir(fileModel.downLoadFile, true)
         SPUtil.removeKeyValue(
             context,
             SP_FILE_NAME,
             fileModel.downLoadUrl
         )
+        removeDownload(url)
         return startDownload(fileModel, callBack)
     }
 
@@ -139,16 +149,18 @@ internal class DownloadManager private constructor(private val context: Applicat
     }
 
     fun removeDownload(url: String, callBack: IDownLoadCallBack): Boolean {
-        downloadCallHashMap.forEach {
-            if (it.key.downLoadUrl == url) {
-                downloadCallHashMap.remove(it.key)
-                DownLoadUtil.clearDir(it.key.downLoadFile, true)
+        val iterator = downloadCallHashMap.iterator()
+        while (iterator.hasNext()) {
+            val model = iterator.next()
+            if (model.key.downLoadUrl == url) {
+                iterator.remove()
+                DownLoadUtil.clearDir(model.key.downLoadFile, true)
                 SPUtil.removeKeyValue(
                     context,
                     SP_FILE_NAME,
                     url
                 )
-                callBack.onStop(it.key)
+                callBack.onStop(model.key)
                 Log.i(DownloadManager::class.simpleName, "remove download url")
                 return true
             }
@@ -157,15 +169,47 @@ internal class DownloadManager private constructor(private val context: Applicat
         return false
     }
 
+    @Synchronized
     private fun removeDownload(url: String): Boolean {
-        downloadCallHashMap.forEach {
-            if (it.key.downLoadUrl == url) {
-                Log.i(DownloadManager::class.simpleName, "remove download url")
+//        val hashMap: ConcurrentHashMap<DownLoadFileModel, Call> = ConcurrentHashMap()
+//        hashMap[downloadCallHashMap.keys.toMutableList()[0]] = downloadCallHashMap.values.toMutableList()[0]
+        Log.i(DownloadManager::class.simpleName, "remove download url downloadCallHashMap：" + downloadCallHashMap.size)
+        val iterator = downloadCallHashMap.iterator()
+        while (iterator.hasNext()) {
+            val model = iterator.next()
+            if (model.key.downLoadUrl == url) {
+                iterator.remove()
+                Log.i(DownloadManager::class.simpleName, "remove download url downloadCallHashMap2：" + downloadCallHashMap.size)
                 return true
             }
         }
         Log.i(DownloadManager::class.simpleName, "remove download fail")
         return false
+    }
+
+    private fun buildModel(url: String): DownLoadFileModel {
+        val fileName: String = DownLoadUtil.getMD5FileName(url)
+        val parentPath: String = downloadConfig?.getDownloadParentPath()?: ""
+        var downLoadLength: Long = 0
+        val file = File(parentPath)
+        if (!file.exists()) {
+            file.mkdirs()
+        }
+        val downLoadFile = File(file, fileName)
+        if (downLoadFile.exists()) {
+            downLoadLength = downLoadFile.length()
+        }
+        return DownLoadFileModel(
+            downLoadUrl = url,
+            localParentPath = parentPath,
+            localPath = downLoadFile.absolutePath,
+            fileName = fileName,
+            downLoadFile = downLoadFile,
+            status = DownLoadStatus.INITIAL,
+            downLoadLength = downLoadLength,
+            totalLength = 0,
+            progress = DownLoadUtil.getExistFileProgress(context, url, parentPath)
+        )
     }
 
     private fun saveFile(dLFModel: DownLoadFileModel, inputString: InputStream, byteLength: Long, callBack: IDownLoadCallBack) {
@@ -202,9 +246,11 @@ internal class DownloadManager private constructor(private val context: Applicat
             if (e is StreamResetException || e is SocketException) {
                 Log.e(DownloadManager::class.simpleName, "cancel by user")
                 callBack.onStop(dLFModel)
+                removeDownload(dLFModel.downLoadUrl)
             } else {
                 Log.e(DownloadManager::class.simpleName, e.message?: "Exception")
                 callBack.onFail(dLFModel, e)
+                removeDownload(dLFModel.downLoadUrl)
             }
         } finally {
             if (dLFModel.downLoadLength >= totalLength) {

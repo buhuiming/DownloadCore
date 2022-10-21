@@ -20,7 +20,7 @@ data class DownLoadFileModel(
 
     var downLoadFile: File? = null,
 
-    var status: DownLoadStatus? = null, //下载状态
+    var status: DownLoadStatus = DownLoadStatus.INITIAL, //下载状态
 
     var downLoadLength: Long = 0, //已下载长度
 

@@ -30,7 +30,6 @@ class DownloadListAdapter (
     override fun convert(holder: VH, item: FileModel) {
         item.let {
             holder.binding.tvName.text = item.fileName
-            addChildClickViewIds(R.id.btnRestart, R.id.btnChange)
             when (item.status) {
                 DownLoadStatus.INITIAL -> {
                     holder.binding.btnRestart.isEnabled = false

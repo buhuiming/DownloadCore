@@ -1,13 +1,18 @@
 package com.bhm.downloadcore
 
+import android.view.View
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bhm.downloadcore.databinding.ActivityMainBinding
+import com.bhm.sdk.support.DownLoadFileModel
 import com.bhm.sdk.support.DownLoadStatus
+import com.bhm.sdk.support.DownLoadUtil
 import com.bhm.support.sdk.common.BaseVBActivity
 import com.bhm.support.sdk.core.AppTheme
 import com.bhm.support.sdk.interfaces.PermissionCallBack
+import timber.log.Timber
+import java.io.File
 
 class MainActivity : BaseVBActivity<MainViewModel, ActivityMainBinding>() {
 
@@ -33,9 +38,36 @@ class MainActivity : BaseVBActivity<MainViewModel, ActivityMainBinding>() {
 
     override fun initEvent() {
         super.initEvent()
-        viewBinding.btnAllStart.setOnClickListener { viewModel.startAllDownloads() }
+        val downloadCallHashMap: HashMap<DownLoadFileModel, View> = HashMap()
+        val fileName: String = DownLoadUtil.getMD5FileName(Constants.urls[0])
+        val parentPath: String = getExternalFilesDir("files")?.absolutePath?: ""
+        val downLoadLength: Long = 100
+        val file = File(parentPath, fileName)
+        val fileModel = DownLoadFileModel(downLoadUrl = "ssss",
+            localParentPath = parentPath,
+            localPath = file.absolutePath,
+            fileName = fileName,
+            downLoadFile = file,
+            status = DownLoadStatus.INITIAL,
+            downLoadLength = downLoadLength,
+            totalLength = 0,
+            progress = 10f)
+        downloadCallHashMap[fileModel] = viewBinding.btnAllStart
+        viewBinding.btnAllStart.setOnClickListener {
+            val iterator = downloadCallHashMap.iterator()
+            while (iterator.hasNext()) {
+                val model = iterator.next()
+                if (model.key.downLoadUrl == "ssss") {
+                    iterator.remove()
+                    Timber.d("downloadCallHashMap size: " + downloadCallHashMap.size)
+                    return@setOnClickListener
+                }
+            }
+        }
+//        viewBinding.btnAllStart.setOnClickListener { viewModel.startAllDownloads() }
         viewBinding.btnAllPause.setOnClickListener { viewModel.pauseAllDownloads() }
         viewBinding.btnAllRemove.setOnClickListener { viewModel.removeAllDownloads() }
+        listAdapter?.addChildClickViewIds(R.id.btnRestart, R.id.btnChange)
         listAdapter?.setOnItemChildClickListener { adapter, view, position ->
             val model = adapter.data[position] as FileModel
             when (view.id) {

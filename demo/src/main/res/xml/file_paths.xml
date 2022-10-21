@@ -7,7 +7,7 @@
         name="external_storage_root"
         path="."/>
     <external-path
-        name="fdmprint"
+        name="downloadcore"
         path="." />
     <cache-path
         name="cache"

@@ -56,6 +56,8 @@ class MainViewModel(private val context: Application) : BaseViewModel(context = 
             callBackList[it.downLoadUrl] = {
                 onWaiting { model->
                     Timber.d("onWaiting: " + model.downLoadUrl)
+                    it.status = model.status
+                    downloadList.postValue(list)
                 }
                 onProgress { model->
                     Timber.d("url: " + model.downLoadUrl)
@@ -63,17 +65,26 @@ class MainViewModel(private val context: Application) : BaseViewModel(context = 
                         "totalLength: " + model.totalLength.toString() + ", totalReadBytes: " +
                                 model.downLoadLength.toString() + ", progress: " + model.progress
                     )
+                    it.progress = model.progress
+                    it.status = model.status
+                    downloadList.postValue(list)
                 }
                 onStop { model->
                     Timber.d("onStop")
+                    it.status = model.status
+                    downloadList.postValue(list)
                 }
                 onComplete { model->
                     Timber.d("onComplete")
+                    it.status = model.status
+                    downloadList.postValue(list)
                 }
-                onFail { dLFModel, throwable ->
-                    Timber.d("onFail")
+                onFail { model, throwable ->
+                    Timber.d("onFail" + throwable.message)
+                    it.status = model.status
+                    downloadList.postValue(list)
                 }
-                saveFile { dLFModel ->
+                saveFile { model ->
 
                 }
             }
@@ -122,7 +133,7 @@ class MainViewModel(private val context: Application) : BaseViewModel(context = 
         val intent = Intent()
         intent.action = Intent.ACTION_VIEW
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+            intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
             val contentUri = FileProvider.getUriForFile(
                 context,
                 context.packageName.toString() + ".fileprovider",
