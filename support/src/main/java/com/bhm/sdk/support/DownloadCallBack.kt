@@ -1,5 +1,6 @@
 package com.bhm.sdk.support
 
+import android.content.Context
 import android.os.Handler
 import android.os.Looper
 
@@ -8,7 +9,7 @@ import android.os.Looper
  * @description: 下载回调
  * @date :2022/10/20 13:49
  */
-class DownloadCallBack : IDownLoadCallBack{
+class DownloadCallBack(val context: Context) : IDownLoadCallBack{
 
     private var _initialize: ((dLFModel: DownLoadFileModel) -> Unit)? = null
 
@@ -67,7 +68,25 @@ class DownloadCallBack : IDownLoadCallBack{
     }
 
     override fun onStop(dLFModel: DownLoadFileModel) {
-        dLFModel.status = DownLoadStatus.STOP
+        if (dLFModel.progress >= 100f) {
+            if (DownLoadUtil.checkExistFullFile(
+                    context,
+                    dLFModel.downLoadUrl,
+                    dLFModel.localParentPath
+                )
+            ) {
+                dLFModel.status = DownLoadStatus.COMPETE
+            } else {
+                dLFModel.progress = DownLoadUtil.getExistFileProgress(
+                    context,
+                    dLFModel.downLoadUrl,
+                    dLFModel.localParentPath
+                )
+                dLFModel.status = DownLoadStatus.STOP
+            }
+        } else {
+            dLFModel.status = DownLoadStatus.STOP
+        }
         mainHandler.post { _stop?.invoke(dLFModel) }
     }
 
@@ -77,7 +96,25 @@ class DownloadCallBack : IDownLoadCallBack{
     }
 
     override fun onProgress(dLFModel: DownLoadFileModel) {
-        dLFModel.status = DownLoadStatus.DOWNING
+        if (dLFModel.progress >= 100f) {
+            if (DownLoadUtil.checkExistFullFile(
+                    context,
+                    dLFModel.downLoadUrl,
+                    dLFModel.localParentPath
+                )
+            ) {
+                dLFModel.status = DownLoadStatus.COMPETE
+            } else {
+                dLFModel.progress = DownLoadUtil.getExistFileProgress(
+                    context,
+                    dLFModel.downLoadUrl,
+                    dLFModel.localParentPath
+                )
+                dLFModel.status = DownLoadStatus.DOWNING
+            }
+        } else {
+            dLFModel.status = DownLoadStatus.DOWNING
+        }
         mainHandler.post { _progress?.invoke(dLFModel) }
     }
 
@@ -90,7 +127,25 @@ class DownloadCallBack : IDownLoadCallBack{
     }
 
     override fun onFail(dLFModel: DownLoadFileModel, throwable: Throwable) {
-        dLFModel.status = DownLoadStatus.FAIL
+        if (dLFModel.progress >= 100f) {
+            if (DownLoadUtil.checkExistFullFile(
+                    context,
+                    dLFModel.downLoadUrl,
+                    dLFModel.localParentPath
+                )
+            ) {
+                dLFModel.status = DownLoadStatus.COMPETE
+            } else {
+                dLFModel.progress = DownLoadUtil.getExistFileProgress(
+                    context,
+                    dLFModel.downLoadUrl,
+                    dLFModel.localParentPath
+                )
+                dLFModel.status = DownLoadStatus.FAIL
+            }
+        } else {
+            dLFModel.status = DownLoadStatus.FAIL
+        }
         mainHandler.post { _fail?.invoke(dLFModel, throwable) }
     }
 }

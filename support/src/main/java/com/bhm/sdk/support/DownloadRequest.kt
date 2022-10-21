@@ -14,7 +14,7 @@ class DownloadRequest(private val context: Application) : IRequest {
     }
 
     override fun startDownload(url: String, callBack: (DownloadCallBack.() -> Unit)?): Boolean? {
-        val call = DownloadCallBack()
+        val call = DownloadCallBack(context)
         callBack?.let {
             call.apply(it)
         }
@@ -22,7 +22,7 @@ class DownloadRequest(private val context: Application) : IRequest {
     }
 
     override fun reStartDownload(url: String, callBack: (DownloadCallBack.() -> Unit)?): Boolean? {
-        val call = DownloadCallBack()
+        val call = DownloadCallBack(context)
         callBack?.let {
             call.apply(it)
         }
@@ -30,7 +30,7 @@ class DownloadRequest(private val context: Application) : IRequest {
     }
 
     override fun pauseDownload(url: String, callBack: (DownloadCallBack.() -> Unit)?): Boolean? {
-        val call = DownloadCallBack()
+        val call = DownloadCallBack(context)
         callBack?.let {
             call.apply(it)
         }
@@ -38,7 +38,7 @@ class DownloadRequest(private val context: Application) : IRequest {
     }
 
     override fun deleteDownload(url: String, callBack: (DownloadCallBack.() -> Unit)?): Boolean? {
-        val call = DownloadCallBack()
+        val call = DownloadCallBack(context)
         callBack?.let {
             call.apply(it)
         }

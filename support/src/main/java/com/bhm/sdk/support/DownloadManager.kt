@@ -54,7 +54,6 @@ internal class DownloadManager private constructor(private val context: Applicat
         okHttpClient?.dispatcher?.maxRequests = config.getMaxDownloadSize() //最大并发请求数为
     }
 
-
     fun startDownload(url: String, callBack: IDownLoadCallBack): Boolean {
         val fileModel = buildModel(url)
         return startDownload(fileModel, callBack)
@@ -106,7 +105,13 @@ internal class DownloadManager private constructor(private val context: Applicat
             override fun onFailure(call: Call, e: IOException) {
                 Log.e(TAG, "onFailure: " + (e.message?: " IOException") + ", " + fileModel.downLoadUrl)
                 if (e is StreamResetException || e is SocketException || call.isCanceled()) {
-                    callBack.onStop(fileModel)
+                    if (DownLoadUtil.getExistFileProgress(context, fileModel.downLoadUrl,
+                            downloadConfig?.getDownloadParentPath()!!) == 0f) {
+                        //用户删除队列中的请求，显示未开始
+                        callBack.onInitialize(fileModel)
+                    } else {
+                        callBack.onStop(fileModel)
+                    }
                 } else {
                     callBack.onFail(fileModel, e)
                 }
@@ -157,8 +162,7 @@ internal class DownloadManager private constructor(private val context: Applicat
     fun pauseDownload(url: String, callBack: IDownLoadCallBack): Boolean{
         for ((key, value) in downloadCallHashMap) {
             if (value.downLoadUrl == url) {
-                val call: Call = key
-                call.cancel()
+                key.cancel()
                 callBack.onStop(value)
                 Log.i(TAG, "cancel download")
                 return true
@@ -266,7 +270,13 @@ internal class DownloadManager private constructor(private val context: Applicat
         } catch (e: java.lang.Exception) {
             if (e is StreamResetException || e is SocketException) {
                 Log.e(TAG, "saving cancel by user" + ", " + dLFModel.downLoadUrl)
-                callBack.onStop(dLFModel)
+                if (DownLoadUtil.getExistFileProgress(context, dLFModel.downLoadUrl,
+                        downloadConfig?.getDownloadParentPath()!!) == 0f) {
+                    //用户删除队列中的请求，显示未开始
+                    callBack.onInitialize(dLFModel)
+                } else {
+                    callBack.onStop(dLFModel)
+                }
             } else {
                 Log.e(TAG, "saving onFailure: " + (e.message?: " IOException") + ", " + dLFModel.downLoadUrl)
                 callBack.onFail(dLFModel, e)
