@@ -19,7 +19,5 @@ interface IDownLoadCallBack {
 
     fun onProgress(dLFModel: DownLoadFileModel)
 
-    fun saveFile(dLFModel: DownLoadFileModel)
-
     fun onFail(dLFModel: DownLoadFileModel, throwable: Throwable)
 }

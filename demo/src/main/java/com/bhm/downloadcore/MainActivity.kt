@@ -8,7 +8,6 @@ import com.bhm.sdk.support.DownLoadStatus
 import com.bhm.support.sdk.common.BaseVBActivity
 import com.bhm.support.sdk.core.AppTheme
 import com.bhm.support.sdk.interfaces.PermissionCallBack
-import timber.log.Timber
 
 class MainActivity : BaseVBActivity<MainViewModel, ActivityMainBinding>() {
 

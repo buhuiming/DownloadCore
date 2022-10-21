@@ -21,8 +21,6 @@ class DownloadCallBack(val context: Context) : IDownLoadCallBack{
 
     private var _progress: ((dLFModel: DownLoadFileModel) -> Unit)? = null
 
-    private var _save: ((dLFModel: DownLoadFileModel) -> Unit)? = null
-
     private var _fail: ((dLFModel: DownLoadFileModel, throwable: Throwable) -> Unit)? = null
 
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -49,10 +47,6 @@ class DownloadCallBack(val context: Context) : IDownLoadCallBack{
         _progress = value
     }
 
-    fun saveFile(value: (dLFModel: DownLoadFileModel) -> Unit) {
-        _save = value
-    }
-
     fun onFail(value: (dLFModel: DownLoadFileModel, throwable: Throwable) -> Unit) {
         _fail = value
     }
@@ -68,6 +62,7 @@ class DownloadCallBack(val context: Context) : IDownLoadCallBack{
     }
 
     override fun onStop(dLFModel: DownLoadFileModel) {
+        //处理状态和进度对应不上，以本地文件位置
         if (dLFModel.progress >= 100f) {
             if (DownLoadUtil.checkExistFullFile(
                     context,
@@ -96,37 +91,35 @@ class DownloadCallBack(val context: Context) : IDownLoadCallBack{
     }
 
     override fun onProgress(dLFModel: DownLoadFileModel) {
-        if (dLFModel.progress >= 100f) {
-            if (DownLoadUtil.checkExistFullFile(
-                    context,
-                    dLFModel.downLoadUrl,
-                    dLFModel.localParentPath
-                )
-            ) {
-                dLFModel.status = DownLoadStatus.COMPETE
-            } else {
-                dLFModel.progress = DownLoadUtil.getExistFileProgress(
-                    context,
-                    dLFModel.downLoadUrl,
-                    dLFModel.localParentPath
-                )
-                dLFModel.status = DownLoadStatus.DOWNING
-            }
-        } else {
-            dLFModel.status = DownLoadStatus.DOWNING
-        }
-        mainHandler.post { _progress?.invoke(dLFModel) }
-    }
-
-    override fun saveFile(dLFModel: DownLoadFileModel) {
         if (lastProgress < dLFModel.progress) {
             lastProgress = dLFModel.progress
-            onProgress(dLFModel)
+
+            //处理状态和进度对应不上，以本地文件位置
+            if (dLFModel.progress >= 100f) {
+                if (DownLoadUtil.checkExistFullFile(
+                        context,
+                        dLFModel.downLoadUrl,
+                        dLFModel.localParentPath
+                    )
+                ) {
+                    dLFModel.status = DownLoadStatus.COMPETE
+                } else {
+                    dLFModel.progress = DownLoadUtil.getExistFileProgress(
+                        context,
+                        dLFModel.downLoadUrl,
+                        dLFModel.localParentPath
+                    )
+                    dLFModel.status = DownLoadStatus.DOWNING
+                }
+            } else {
+                dLFModel.status = DownLoadStatus.DOWNING
+            }
+            mainHandler.post { _progress?.invoke(dLFModel) }
         }
-        mainHandler.post { _save?.invoke(dLFModel) }
     }
 
     override fun onFail(dLFModel: DownLoadFileModel, throwable: Throwable) {
+        //处理状态和进度对应不上，以本地文件位置
         if (dLFModel.progress >= 100f) {
             if (DownLoadUtil.checkExistFullFile(
                     context,

@@ -262,7 +262,7 @@ internal class DownloadManager private constructor(private val context: Applicat
                 if (dLFModel.progress >= 100) {
                     removeDownload(dLFModel.downLoadUrl)
                 }
-                callBack.saveFile(dLFModel)
+                callBack.onProgress(dLFModel)
             }
             fos.flush()
             inputString.close()
