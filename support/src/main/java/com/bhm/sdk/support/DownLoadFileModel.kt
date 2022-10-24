@@ -1,6 +1,5 @@
 package com.bhm.sdk.support
 
-import com.bhm.sdk.support.DownLoadStatus
 import java.io.File
 
 /**

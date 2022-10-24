@@ -1,7 +1,5 @@
 package com.bhm.sdk.support
 
-import java.io.InputStream
-
 /**
  * * @author Buhuiming
  * * @description: 下载回调

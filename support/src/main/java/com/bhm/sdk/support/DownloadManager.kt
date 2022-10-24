@@ -46,9 +46,9 @@ internal class DownloadManager private constructor(private val context: Applicat
     fun newCall(config: DownloadConfig) {
         downloadConfig = config
         okHttpClient = OkHttpClient.Builder()
-            .writeTimeout(config.getWriteTimeout().toLong(), TimeUnit.SECONDS)
-            .readTimeout(config.getReadTimeout().toLong(), TimeUnit.SECONDS)
-            .connectTimeout(config.getConnectTimeout().toLong(), TimeUnit.SECONDS)
+            .writeTimeout(config.getWriteTimeout(), TimeUnit.SECONDS)
+            .readTimeout(config.getReadTimeout(), TimeUnit.SECONDS)
+            .connectTimeout(config.getConnectTimeout(), TimeUnit.SECONDS)
             .build()
         okHttpClient?.dispatcher?.maxRequestsPerHost = config.getMaxDownloadSize() //每个主机最大请求数为
         okHttpClient?.dispatcher?.maxRequests = config.getMaxDownloadSize() //最大并发请求数为

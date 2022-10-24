@@ -13,16 +13,16 @@ class DownloadConfig private constructor(builder: Builder) {
 
     private val downloadParentPath: String?
 
-    private val writeTimeout: Int
+    private val writeTimeout: Long
 
-    private val readTimeout: Int
+    private val readTimeout: Long
 
-    private val connectTimeout: Int
+    private val connectTimeout: Long
 
     companion object {
-        private const val WRITE_TIMEOUT = 30
-        private const val READ_TIMEOUT = 30
-        private const val CONNECT_TIMEOUT = 15
+        private const val WRITE_TIMEOUT = 30L
+        private const val READ_TIMEOUT = 30L
+        private const val CONNECT_TIMEOUT = 15L
         const val MAX_DOWNING_SIZE = 1 //最大同时下载数量
         const val SP_FILE_NAME = "download_list"
     }
@@ -39,16 +39,16 @@ class DownloadConfig private constructor(builder: Builder) {
         return if (maxDownloadSize == 0) MAX_DOWNING_SIZE else maxDownloadSize
     }
 
-    fun getWriteTimeout(): Int {
-        return if (writeTimeout == 0) WRITE_TIMEOUT else writeTimeout
+    fun getWriteTimeout(): Long {
+        return if (writeTimeout == 0L) WRITE_TIMEOUT else writeTimeout
     }
 
-    fun getReadTimeout(): Int {
-        return if (readTimeout == 0) READ_TIMEOUT else readTimeout
+    fun getReadTimeout(): Long {
+        return if (readTimeout == 0L) READ_TIMEOUT else readTimeout
     }
 
-    fun getConnectTimeout(): Int {
-        return if (connectTimeout == 0) CONNECT_TIMEOUT else connectTimeout
+    fun getConnectTimeout(): Long {
+        return if (connectTimeout == 0L) CONNECT_TIMEOUT else connectTimeout
     }
 
     fun getDownloadParentPath(): String? {
@@ -61,11 +61,11 @@ class DownloadConfig private constructor(builder: Builder) {
 
         internal var downloadParentPath: String? = null
 
-        internal var writeTimeout = 0
+        internal var writeTimeout = 0L
 
-        internal var readTimeout = 0
+        internal var readTimeout = 0L
 
-        internal var connectTimeout = 0
+        internal var connectTimeout = 0L
 
         fun setMaxDownloadSize(maxDownloadSize: Int): Builder {
             this.maxDownloadSize = maxDownloadSize
@@ -77,17 +77,17 @@ class DownloadConfig private constructor(builder: Builder) {
             return this
         }
 
-        fun setWriteTimeout(writeTimeout: Int): Builder {
+        fun setWriteTimeout(writeTimeout: Long): Builder {
             this.writeTimeout = writeTimeout
             return this
         }
 
-        fun setReadTimeout(readTimeout: Int): Builder {
+        fun setReadTimeout(readTimeout: Long): Builder {
             this.readTimeout = readTimeout
             return this
         }
 
-        fun setConnectTimeout(connectTimeout: Int): Builder {
+        fun setConnectTimeout(connectTimeout: Long): Builder {
             this.connectTimeout = connectTimeout
             return this
         }
