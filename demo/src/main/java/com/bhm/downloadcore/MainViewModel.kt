@@ -34,6 +34,7 @@ class MainViewModel(private val context: Application) : BaseViewModel(context = 
             .setWriteTimeout(30)
             .setReadTimeout(30)
             .setConnectTimeout(15)
+            .setDownloadInTheBackground(false)
             .setDownloadParentPath(parentPath)
             .build()
         downloadRequest?.newRequest(downloadConfig)

@@ -19,6 +19,8 @@ class DownloadConfig private constructor(builder: Builder) {
 
     private val connectTimeout: Long
 
+    private val downloadInTheBackground: Boolean
+
     companion object {
         private const val WRITE_TIMEOUT = 30L
         private const val READ_TIMEOUT = 30L
@@ -33,6 +35,7 @@ class DownloadConfig private constructor(builder: Builder) {
         writeTimeout = builder.writeTimeout
         readTimeout = builder.readTimeout
         connectTimeout = builder.connectTimeout
+        downloadInTheBackground = builder.downloadInTheBackground
     }
 
     fun getMaxDownloadSize(): Int {
@@ -55,6 +58,10 @@ class DownloadConfig private constructor(builder: Builder) {
         return downloadParentPath
     }
 
+    fun getDownloadInTheBackground(): Boolean {
+        return downloadInTheBackground
+    }
+
     class Builder {
 
         internal var maxDownloadSize = 0
@@ -66,6 +73,8 @@ class DownloadConfig private constructor(builder: Builder) {
         internal var readTimeout = 0L
 
         internal var connectTimeout = 0L
+
+        internal var downloadInTheBackground = false
 
         fun setMaxDownloadSize(maxDownloadSize: Int): Builder {
             this.maxDownloadSize = maxDownloadSize
@@ -89,6 +98,11 @@ class DownloadConfig private constructor(builder: Builder) {
 
         fun setConnectTimeout(connectTimeout: Long): Builder {
             this.connectTimeout = connectTimeout
+            return this
+        }
+
+        fun setDownloadInTheBackground(downloadInTheBackground: Boolean): Builder {
+            this.downloadInTheBackground = downloadInTheBackground
             return this
         }
 

@@ -1,6 +1,9 @@
 package com.bhm.sdk.support
 
+import android.app.Activity
 import android.app.Application
+import android.content.ComponentCallbacks
+import android.os.Bundle
 import android.util.Log
 import com.bhm.sdk.support.DownloadConfig.Companion.SP_FILE_NAME
 import okhttp3.*
@@ -52,6 +55,26 @@ internal class DownloadManager private constructor(private val context: Applicat
             .build()
         okHttpClient?.dispatcher?.maxRequestsPerHost = config.getMaxDownloadSize() //每个主机最大请求数为
         okHttpClient?.dispatcher?.maxRequests = config.getMaxDownloadSize() //最大并发请求数为
+        if (!config.getDownloadInTheBackground()) {
+            context.registerActivityLifecycleCallbacks(object :
+                Application.ActivityLifecycleCallbacks {
+                override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
+                override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
+                override fun onActivityStarted(activity: Activity) {}
+                override fun onActivityResumed(activity: Activity) {}
+                override fun onActivityPaused(activity: Activity) {}
+                override fun onActivityStopped(activity: Activity) {}
+                override fun onActivityDestroyed(activity: Activity) {
+                    if (activity.isTaskRoot) {
+                        for ((key, _) in downloadCallHashMap) {
+                            key.cancel()
+                        }
+                        Log.e(TAG, "root activity finish, cancel all downloads")
+                    }
+                    Log.e(TAG, "activity finish, onActivityDestroyed")
+                }
+            })
+        }
     }
 
     fun startDownload(url: String, callBack: IDownLoadCallBack): Boolean {
