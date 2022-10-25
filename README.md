@@ -22,6 +22,7 @@
             .setReadTimeout(30)
             .setConnectTimeout(15)
             .setDownloadParentPath(parentPath)
+            .setDownloadInTheBackground(false)
             .build()
         downloadRequest?.newRequest(downloadConfig)
 

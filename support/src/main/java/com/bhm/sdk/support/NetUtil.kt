@@ -16,7 +16,6 @@ object NetUtil {
      * 判断wifi是否已连接并可用
      */
     @Suppress("DEPRECATION")
-    @JvmStatic
     fun isWifiConnected(context: Context): Boolean {
         val mConnectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -33,7 +32,6 @@ object NetUtil {
      * 判断网络是否可用
      */
     @Suppress("DEPRECATION")
-    @JvmStatic
     fun isNetWorkConnected(context: Context): Boolean {
         val mConnectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val isNetWorkConnected: Boolean = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

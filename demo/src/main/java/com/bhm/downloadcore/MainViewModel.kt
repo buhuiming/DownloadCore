@@ -1,6 +1,8 @@
 package com.bhm.downloadcore
 
 import android.app.Application
+import android.app.Notification
+import android.app.PendingIntent
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -8,6 +10,7 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.MutableLiveData
 import com.bhm.sdk.support.*
 import com.bhm.support.sdk.common.BaseViewModel
+import com.bhm.support.sdk.utils.NotificationUtil
 import timber.log.Timber
 import java.io.File
 
@@ -34,10 +37,38 @@ class MainViewModel(private val context: Application) : BaseViewModel(context = 
             .setWriteTimeout(30)
             .setReadTimeout(30)
             .setConnectTimeout(15)
-            .setDownloadInTheBackground(false)
+            .setDownloadInTheBackground(downloadNotification())
+//            .setDownloadInTheBackground(null)//传空，则退出APP，停止下载
             .setDownloadParentPath(parentPath)
             .build()
         downloadRequest?.newRequest(downloadConfig)
+    }
+
+    private fun downloadNotification() : Notification? {
+        val pendingIntent: PendingIntent =
+            PendingIntent.getActivity(
+                context,
+                0,
+                Intent(context, MainActivity::class.java),
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                } else {
+                    PendingIntent.FLAG_UPDATE_CURRENT
+                }
+            )
+        NotificationUtils.getInstance(context)?.init(
+            R.mipmap.ic_launcher,
+            R.mipmap.ic_launcher,
+            null
+        )
+        return NotificationUtils.getInstance(
+            context,
+        )?.buildNotificationText(
+            title = context.getString(R.string.app_name),
+            body = "正在下载",
+            pendingIntent = pendingIntent,
+            channelId = ""
+        )?.build()
     }
 
     fun initDownloadList() {

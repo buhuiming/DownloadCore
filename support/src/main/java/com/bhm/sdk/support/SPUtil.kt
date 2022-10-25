@@ -50,7 +50,6 @@ object SPUtil {
         return SPUtil[context, context.packageName, key, defaultObject]
     }
 
-    @JvmStatic
     operator fun get(context: Context, fileName: String, key: String, defaultObject: Any): Any {
         return if (contains(context, fileName, key)) {
             val sp = context.getSharedPreferences(fileName, Context.MODE_PRIVATE)

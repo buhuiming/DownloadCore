@@ -1,5 +1,6 @@
 package com.bhm.sdk.support
 
+import android.app.Notification
 import android.text.TextUtils
 
 /**
@@ -19,7 +20,7 @@ class DownloadConfig private constructor(builder: Builder) {
 
     private val connectTimeout: Long
 
-    private val downloadInTheBackground: Boolean
+    private var downloadInTheBackground: Notification? = null
 
     companion object {
         private const val WRITE_TIMEOUT = 30L
@@ -58,7 +59,7 @@ class DownloadConfig private constructor(builder: Builder) {
         return downloadParentPath
     }
 
-    fun getDownloadInTheBackground(): Boolean {
+    fun downloadNotification(): Notification? {
         return downloadInTheBackground
     }
 
@@ -74,7 +75,7 @@ class DownloadConfig private constructor(builder: Builder) {
 
         internal var connectTimeout = 0L
 
-        internal var downloadInTheBackground = false
+        internal var downloadInTheBackground: Notification? = null
 
         fun setMaxDownloadSize(maxDownloadSize: Int): Builder {
             this.maxDownloadSize = maxDownloadSize
@@ -101,7 +102,7 @@ class DownloadConfig private constructor(builder: Builder) {
             return this
         }
 
-        fun setDownloadInTheBackground(downloadInTheBackground: Boolean): Builder {
+        fun setDownloadInTheBackground(downloadInTheBackground: Notification?): Builder {
             this.downloadInTheBackground = downloadInTheBackground
             return this
         }

@@ -2,7 +2,6 @@ package com.bhm.sdk.support
 
 import android.app.Activity
 import android.app.Application
-import android.content.ComponentCallbacks
 import android.os.Bundle
 import android.util.Log
 import com.bhm.sdk.support.DownloadConfig.Companion.SP_FILE_NAME
@@ -55,7 +54,7 @@ internal class DownloadManager private constructor(private val context: Applicat
             .build()
         okHttpClient?.dispatcher?.maxRequestsPerHost = config.getMaxDownloadSize() //每个主机最大请求数为
         okHttpClient?.dispatcher?.maxRequests = config.getMaxDownloadSize() //最大并发请求数为
-        if (!config.getDownloadInTheBackground()) {
+        if (config.downloadNotification() == null) {
             context.registerActivityLifecycleCallbacks(object :
                 Application.ActivityLifecycleCallbacks {
                 override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
@@ -112,6 +111,11 @@ internal class DownloadManager private constructor(private val context: Applicat
         ) {
             //等待队列数和下载队列数超过1个，则加入等待
             callBack.onWaiting(fileModel)
+        }
+
+        if (downloadConfig?.downloadNotification() != null && downloadCallHashMap.size == 0) {
+            DownloadService.start(context, downloadConfig?.downloadNotification())
+            Log.i(TAG, "启动下载服务 ")
         }
 
         val request: Request = Request.Builder()
@@ -211,6 +215,7 @@ internal class DownloadManager private constructor(private val context: Applicat
                 callBack.onInitialize(model.value)
                 iterator.remove()
                 Log.i(TAG, "delete download url")
+                isAllComplete()
                 return true
             } else {
                 callBack.onInitialize(buildModel)
@@ -229,10 +234,19 @@ internal class DownloadManager private constructor(private val context: Applicat
             if (model.value.downLoadUrl == url) {
                 iterator.remove()
                 Log.i(TAG, "remove download url downloadCallHashMap2：" + downloadCallHashMap.size)
+                isAllComplete()
+                return true
             }
         }
         Log.i(TAG, "remove download fail")
         return false
+    }
+
+    private fun isAllComplete() {
+        if (downloadCallHashMap.size == 0 && downloadConfig?.downloadNotification() != null) {
+            Log.i(TAG, "关闭下载服务 ")
+            DownloadService.destroy(context)
+        }
     }
 
     private fun buildModel(url: String): DownLoadFileModel {
