@@ -6,6 +6,11 @@ import android.app.Notification
 import android.os.Bundle
 import android.util.Log
 import com.bhm.sdk.support.DownloadConfig.Companion.SP_FILE_NAME
+import com.bhm.sdk.support.interfaces.IDownLoadCallBack
+import com.bhm.sdk.support.service.DownloadService
+import com.bhm.sdk.support.utils.DownLoadUtil
+import com.bhm.sdk.support.utils.NetUtil
+import com.bhm.sdk.support.utils.SPUtil
 import okhttp3.*
 import okhttp3.internal.http2.StreamResetException
 import java.io.File
@@ -105,6 +110,17 @@ internal class DownloadManager private constructor(private val context: Applicat
                 return false
             }
         }
+
+        if (!NetUtil.isNetWorkConnected(context)) {
+            Log.i(TAG, "NetWork unConnected")
+            return false
+        }
+
+        if (downloadConfig?.downloadOverWiFiOnly() == true && !NetUtil.isWifiConnected(context)) {
+            Log.i(TAG, "download over WiFi only")
+            return false
+        }
+
         Log.i(TAG, "queuedCallsCount: " + okHttpClient!!.dispatcher.queuedCallsCount())
         Log.i(TAG, "runningCallsCount: " + okHttpClient!!.dispatcher.runningCallsCount())
         if (okHttpClient!!.dispatcher.queuedCallsCount() + okHttpClient!!.dispatcher

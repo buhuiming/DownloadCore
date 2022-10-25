@@ -2,6 +2,8 @@ package com.bhm.sdk.support
 
 import android.app.Application
 import android.app.Notification
+import com.bhm.sdk.support.interfaces.DownloadCallBack
+import com.bhm.sdk.support.interfaces.IRequest
 
 /**
  * @author Buhuiming

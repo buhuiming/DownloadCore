@@ -1,8 +1,9 @@
-package com.bhm.sdk.support
+package com.bhm.sdk.support.utils
 
 import android.content.Context
 import android.text.TextUtils
 import android.util.Log
+import com.bhm.sdk.support.DownloadConfig
 import java.io.File
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest

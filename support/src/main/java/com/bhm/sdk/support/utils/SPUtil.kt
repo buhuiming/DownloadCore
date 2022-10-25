@@ -1,6 +1,6 @@
 @file:Suppress("unused", "MemberVisibilityCanBePrivate")
 
-package com.bhm.sdk.support
+package com.bhm.sdk.support.utils
 
 import android.content.Context
 import android.content.SharedPreferences

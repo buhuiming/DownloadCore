@@ -7,6 +7,8 @@ import android.os.Build
 import androidx.core.content.FileProvider
 import androidx.lifecycle.MutableLiveData
 import com.bhm.sdk.support.*
+import com.bhm.sdk.support.interfaces.DownloadCallBack
+import com.bhm.sdk.support.utils.DownLoadUtil
 import com.bhm.support.sdk.common.BaseViewModel
 import com.bhm.support.sdk.utils.NotificationUtil
 import timber.log.Timber
@@ -49,6 +51,7 @@ class MainViewModel(private val context: Application) : BaseViewModel(context = 
             .setWriteTimeout(30)
             .setReadTimeout(30)
             .setConnectTimeout(15)
+            .setDownloadOverWiFiOnly(Constants.DOWNLOAD_OVER_WIFI_ONLY) //仅WiFi时下载
             .setDownloadInTheBackground(downloadNotification, Constants.NOTIFICATION_ID)
 //            .setDownloadInTheBackground(null)//传空，则退出APP，停止下载
             .setDownloadParentPath(parentPath)

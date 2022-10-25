@@ -1,4 +1,4 @@
-package com.bhm.sdk.support
+package com.bhm.sdk.support.service
 
 import android.app.Notification
 import android.app.NotificationManager
@@ -24,8 +24,8 @@ internal class DownloadService : Service() {
         private var notification: Notification? = null
 
         fun start(context: Context, notification: Notification?, notificationId: Int?) {
-            this.notification = notification
-            notificationId?.let { it -> this.serviceId = it }
+            Companion.notification = notification
+            notificationId?.let { it -> serviceId = it }
             val intent = Intent(context, DownloadService::class.java)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 context.startForegroundService(intent)

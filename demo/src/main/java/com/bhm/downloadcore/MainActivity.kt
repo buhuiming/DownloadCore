@@ -1,10 +1,12 @@
 package com.bhm.downloadcore
 
+import android.widget.Toast
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bhm.downloadcore.databinding.ActivityMainBinding
 import com.bhm.sdk.support.DownLoadStatus
+import com.bhm.sdk.support.utils.NetUtil
 import com.bhm.support.sdk.common.BaseVBActivity
 import com.bhm.support.sdk.core.AppTheme
 import com.bhm.support.sdk.interfaces.PermissionCallBack
@@ -46,6 +48,14 @@ class MainActivity : BaseVBActivity<MainViewModel, ActivityMainBinding>() {
                 R.id.btnChange -> {
                     when (model.status) {
                         DownLoadStatus.INITIAL , DownLoadStatus.STOP -> {
+                            if (!NetUtil.isNetWorkConnected(application)) {
+                                Toast.makeText(application, "请检查网络连接", Toast.LENGTH_SHORT).show()
+                                return@setOnItemChildClickListener
+                            }
+                            if (Constants.DOWNLOAD_OVER_WIFI_ONLY && !NetUtil.isWifiConnected(application)) {
+                                Toast.makeText(application, "仅WiFi时下载", Toast.LENGTH_SHORT).show()
+                                return@setOnItemChildClickListener
+                            }
                             model.status = DownLoadStatus.DOWNING
                             adapter.notifyItemChanged(position)
                             viewModel.startDownload(model.downLoadUrl)

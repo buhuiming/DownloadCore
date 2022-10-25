@@ -18,4 +18,6 @@ object Constants {
         "android.permission.WRITE_EXTERNAL_STORAGE"
     )
     const val NOTIFICATION_ID = 111111
+
+    const val DOWNLOAD_OVER_WIFI_ONLY = true
 }

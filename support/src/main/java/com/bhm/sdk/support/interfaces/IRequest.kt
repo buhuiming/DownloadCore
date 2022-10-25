@@ -1,4 +1,6 @@
-package com.bhm.sdk.support
+package com.bhm.sdk.support.interfaces
+
+import com.bhm.sdk.support.DownloadConfig
 
 /**
  * @author Buhuiming

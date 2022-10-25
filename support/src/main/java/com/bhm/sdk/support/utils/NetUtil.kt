@@ -1,4 +1,4 @@
-package com.bhm.sdk.support
+package com.bhm.sdk.support.utils
 
 import android.content.Context
 import android.net.ConnectivityManager

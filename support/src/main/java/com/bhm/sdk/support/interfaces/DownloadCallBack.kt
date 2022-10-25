@@ -1,15 +1,18 @@
-package com.bhm.sdk.support
+package com.bhm.sdk.support.interfaces
 
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
+import com.bhm.sdk.support.DownLoadFileModel
+import com.bhm.sdk.support.DownLoadStatus
+import com.bhm.sdk.support.utils.DownLoadUtil
 
 /**
  * @author Buhuiming
  * @description: 下载回调
  * @date :2022/10/20 13:49
  */
-class DownloadCallBack(val context: Context) : IDownLoadCallBack{
+class DownloadCallBack(val context: Context) : IDownLoadCallBack {
 
     private var _initialize: ((dLFModel: DownLoadFileModel) -> Unit)? = null
 
