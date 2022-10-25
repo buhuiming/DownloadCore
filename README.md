@@ -22,7 +22,7 @@
             .setReadTimeout(30)
             .setConnectTimeout(15)
             .setDownloadParentPath(parentPath)
-            .setDownloadInTheBackground(false)
+            .setDownloadInTheBackground(null)//传空，则退出APP，停止下载；传Notification，则开启前台Service下载
             .build()
         downloadRequest?.newRequest(downloadConfig)
 

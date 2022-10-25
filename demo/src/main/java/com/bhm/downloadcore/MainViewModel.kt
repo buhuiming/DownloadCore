@@ -56,12 +56,12 @@ class MainViewModel(private val context: Application) : BaseViewModel(context = 
                     PendingIntent.FLAG_UPDATE_CURRENT
                 }
             )
-        NotificationUtils.getInstance(context)?.init(
+        NotificationUtil.getInstance(context)?.init(
             R.mipmap.ic_launcher,
             R.mipmap.ic_launcher,
             null
         )
-        return NotificationUtils.getInstance(
+        return NotificationUtil.getInstance(
             context,
         )?.buildNotificationText(
             title = context.getString(R.string.app_name),
