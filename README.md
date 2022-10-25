@@ -6,6 +6,8 @@
 #### 支持网络状态及变化的下载状态变更
 #### 支持设置重复文件下载
 
+![698392621fe842f7c5dff7e5dc2a4fa](https://user-images.githubusercontent.com/30099293/197741164-a11257ec-df42-4f8f-80b9-1b3aec6a07da.jpg)
+
 ### 用法
 
         allprojects {
