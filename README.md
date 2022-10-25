@@ -1,5 +1,11 @@
 # DownloadCore
 
+#### 支持设置多文件同时下载
+#### 支持设置仅WiFi时下载
+#### 支持设置后台下载，自定义Notification
+#### 支持网络状态及变化的下载状态变更
+#### 支持设置重复文件下载
+
 ### 用法
 
         allprojects {
@@ -22,6 +28,7 @@
             .setReadTimeout(30)
             .setConnectTimeout(15)
             .setDownloadParentPath(parentPath)
+            .setDownloadOverWiFiOnly(true) //仅WiFi时下载
             .setDownloadInTheBackground(null)//传空，则退出APP，停止下载；传Notification，则开启前台Service下载
             .build()
         downloadRequest?.newRequest(downloadConfig)
@@ -66,8 +73,10 @@
 #### 7、 检查是否存在未完成下载(0 < progress < 100)
         DownLoadUtil.getExistFileProgress(context, url, parentPath)
 
+#### 7、 更多请参考Demo
+
 ### TO DO
 
-#### 1、 网络波动
+#### 1、 网络变化
 
 #### 2、 重复文件下载
