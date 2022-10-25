@@ -1,8 +1,6 @@
 package com.bhm.downloadcore
 
-import android.app.Application
-import android.app.Notification
-import android.app.PendingIntent
+import android.app.*
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -29,15 +27,29 @@ class MainViewModel(private val context: Application) : BaseViewModel(context = 
 
     private var parentPath: String? = null
 
+    private var downloadNotification: Notification? = null
+
+    private val downloadInTheBackground = true
+
     fun initDownloadManager() {
+        NotificationUtil.getInstance(context)?.init(
+            R.mipmap.ic_launcher,
+            R.mipmap.ic_launcher,
+            null
+        )
         parentPath = context.getExternalFilesDir("downloadFiles")?.absolutePath
         downloadRequest = DownloadRequest(context)
+        downloadNotification = if (downloadInTheBackground) {
+            downloadNotification()
+        } else {
+            null
+        }
         val downloadConfig: DownloadConfig = DownloadConfig.Builder()
-            .setMaxDownloadSize(2)
+            .setMaxDownloadSize(3)
             .setWriteTimeout(30)
             .setReadTimeout(30)
             .setConnectTimeout(15)
-            .setDownloadInTheBackground(downloadNotification())
+            .setDownloadInTheBackground(downloadNotification, Constants.NOTIFICATION_ID)
 //            .setDownloadInTheBackground(null)//传空，则退出APP，停止下载
             .setDownloadParentPath(parentPath)
             .build()
@@ -56,11 +68,6 @@ class MainViewModel(private val context: Application) : BaseViewModel(context = 
                     PendingIntent.FLAG_UPDATE_CURRENT
                 }
             )
-        NotificationUtil.getInstance(context)?.init(
-            R.mipmap.ic_launcher,
-            R.mipmap.ic_launcher,
-            null
-        )
         return NotificationUtil.getInstance(
             context,
         )?.buildNotificationText(

@@ -1,6 +1,7 @@
 package com.bhm.sdk.support
 
 import android.app.Application
+import android.app.Notification
 
 /**
  * @author Buhuiming
@@ -43,5 +44,9 @@ class DownloadRequest(private val context: Application) : IRequest {
             call.apply(it)
         }
         return DownloadManager.getInstance(context)?.deleteDownload(url, call)
+    }
+
+    fun updateNotification(notification: Notification?) {
+        DownloadManager.getInstance(context)?.updateNotification(notification)
     }
 }

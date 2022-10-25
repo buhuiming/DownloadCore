@@ -13,18 +13,19 @@ import android.os.IBinder
  * @description:
  * @date :2022/10/24 18:02
  */
-class DownloadService : Service() {
+internal class DownloadService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
-    private val serviceId = 111111
-
     companion object {
+
+        private var serviceId = 10001
 
         private var notification: Notification? = null
 
-        fun start(context: Context, notification: Notification?) {
+        fun start(context: Context, notification: Notification?, notificationId: Int?) {
             this.notification = notification
+            notificationId?.let { it -> this.serviceId = it }
             val intent = Intent(context, DownloadService::class.java)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 context.startForegroundService(intent)
@@ -40,6 +41,11 @@ class DownloadService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        showNotification(notification)
+        return super.onStartCommand(intent, flags, startId)
+    }
+
+    private fun showNotification(notification: Notification?) {
         notification?.let {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 startForeground(serviceId, it)
@@ -48,7 +54,6 @@ class DownloadService : Service() {
                 manager.notify(serviceId, it)
             }
         }
-        return super.onStartCommand(intent, flags, startId)
     }
 
     override fun onDestroy() {

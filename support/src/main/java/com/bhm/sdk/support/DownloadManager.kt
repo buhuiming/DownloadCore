@@ -2,6 +2,7 @@ package com.bhm.sdk.support
 
 import android.app.Activity
 import android.app.Application
+import android.app.Notification
 import android.os.Bundle
 import android.util.Log
 import com.bhm.sdk.support.DownloadConfig.Companion.SP_FILE_NAME
@@ -114,7 +115,7 @@ internal class DownloadManager private constructor(private val context: Applicat
         }
 
         if (downloadConfig?.downloadNotification() != null && downloadCallHashMap.size == 0) {
-            DownloadService.start(context, downloadConfig?.downloadNotification())
+            updateNotification(downloadConfig?.downloadNotification())
             Log.i(TAG, "启动下载服务 ")
         }
 
@@ -323,6 +324,12 @@ internal class DownloadManager private constructor(private val context: Applicat
             if (dLFModel.downLoadLength >= totalLength) {
                 callBack.onComplete(dLFModel)
             }
+        }
+    }
+
+    fun updateNotification(notification: Notification?) {
+        if (downloadConfig?.downloadNotification() != null) {
+            DownloadService.start(context, notification, downloadConfig?.downloadNotificationId())
         }
     }
 }

@@ -15,7 +15,7 @@ data class DownLoadFileModel(
 
     var localPath: String? = null,//本地存储地址
 
-    var fileName: String? = null, //文件名
+    var fileName: String = "", //文件名
 
     var downLoadFile: File? = null,
 

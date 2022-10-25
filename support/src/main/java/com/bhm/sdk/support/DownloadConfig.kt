@@ -20,6 +20,8 @@ class DownloadConfig private constructor(builder: Builder) {
 
     private val connectTimeout: Long
 
+    private val notificationId: Int
+
     private var downloadInTheBackground: Notification? = null
 
     companion object {
@@ -37,6 +39,7 @@ class DownloadConfig private constructor(builder: Builder) {
         readTimeout = builder.readTimeout
         connectTimeout = builder.connectTimeout
         downloadInTheBackground = builder.downloadInTheBackground
+        notificationId = builder.notificationId
     }
 
     fun getMaxDownloadSize(): Int {
@@ -63,6 +66,10 @@ class DownloadConfig private constructor(builder: Builder) {
         return downloadInTheBackground
     }
 
+    fun downloadNotificationId(): Int {
+        return notificationId
+    }
+
     class Builder {
 
         internal var maxDownloadSize = 0
@@ -74,6 +81,8 @@ class DownloadConfig private constructor(builder: Builder) {
         internal var readTimeout = 0L
 
         internal var connectTimeout = 0L
+
+        internal var notificationId = 0
 
         internal var downloadInTheBackground: Notification? = null
 
@@ -102,8 +111,9 @@ class DownloadConfig private constructor(builder: Builder) {
             return this
         }
 
-        fun setDownloadInTheBackground(downloadInTheBackground: Notification?): Builder {
+        fun setDownloadInTheBackground(downloadInTheBackground: Notification?, notificationId: Int): Builder {
             this.downloadInTheBackground = downloadInTheBackground
+            this.notificationId = notificationId
             return this
         }
 
