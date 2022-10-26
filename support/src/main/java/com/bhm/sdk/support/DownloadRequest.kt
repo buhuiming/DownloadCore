@@ -4,7 +4,6 @@ import android.app.Application
 import android.app.Notification
 import com.bhm.sdk.support.interfaces.DownloadCallBack
 import com.bhm.sdk.support.interfaces.IRequest
-import com.bhm.sdk.support.net.ConnectivityEngine
 
 /**
  * @author Buhuiming
@@ -15,10 +14,6 @@ class DownloadRequest(private val context: Application) : IRequest {
 
     override fun newRequest(config: DownloadConfig) {
         DownloadManager.getInstance(context)?.newCall(config)
-        ConnectivityEngine.getInstance(context)?.registerNetworkChangeListener {
-                b, network ->
-
-        }
     }
 
     override fun startDownload(url: String, callBack: (DownloadCallBack.() -> Unit)?): Boolean? {
