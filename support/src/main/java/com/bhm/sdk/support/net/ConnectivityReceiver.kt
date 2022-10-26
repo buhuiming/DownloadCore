@@ -14,7 +14,7 @@ import android.util.Log
  * @description: 监听网络变化，小于Android5.0的版本
  * @date :2022/10/25 17:20
  */
-class ConnectivityReceiver : BroadcastReceiver() {
+internal class ConnectivityReceiver : BroadcastReceiver() {
 
     /** 指示是否没有网络 */
     private var noConnectivity = false
@@ -59,11 +59,11 @@ class ConnectivityReceiver : BroadcastReceiver() {
 
         this.noConnectivity = noConnectivity
 
-        if (noConnectivity) {
-            //没网了
-        } else {
-            //有网了
-        }
+//        if (noConnectivity) {
+//            //没网了
+//        } else {
+//            //有网了
+//        }
     }
 
 }

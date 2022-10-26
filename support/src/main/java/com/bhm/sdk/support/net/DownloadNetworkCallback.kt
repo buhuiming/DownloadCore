@@ -13,7 +13,7 @@ import android.util.Log
  * @description: 监听网络变化，Android5.0或以上的版本
  * @date :2022/10/25 17:24
  */
-class DownloadNetworkCallback(
+internal class DownloadNetworkCallback(
     private val connectivityManager: ConnectivityManager,
     private val callback: (Boolean, Network) -> Unit
 ): ConnectivityManager.NetworkCallback() {
