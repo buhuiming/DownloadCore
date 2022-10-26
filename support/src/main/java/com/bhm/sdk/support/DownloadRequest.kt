@@ -16,36 +16,36 @@ class DownloadRequest(private val context: Application) : IRequest {
         DownloadManager.getInstance(context)?.newCall(config)
     }
 
-    override fun startDownload(url: String, callBack: (DownloadCallBack.() -> Unit)?): Boolean? {
+    override fun startDownload(url: String, fileName: String, callBack: (DownloadCallBack.() -> Unit)?): Boolean? {
         val call = DownloadCallBack(context)
         callBack?.let {
             call.apply(it)
         }
-        return DownloadManager.getInstance(context)?.startDownload(url, call)
+        return DownloadManager.getInstance(context)?.startDownload(url, fileName, call)
     }
 
-    override fun reStartDownload(url: String, callBack: (DownloadCallBack.() -> Unit)?): Boolean? {
+    override fun reStartDownload(url: String, fileName: String, callBack: (DownloadCallBack.() -> Unit)?): Boolean? {
         val call = DownloadCallBack(context)
         callBack?.let {
             call.apply(it)
         }
-        return DownloadManager.getInstance(context)?.reStartDownload(url, call)
+        return DownloadManager.getInstance(context)?.reStartDownload(url, fileName, call)
     }
 
-    override fun pauseDownload(url: String, callBack: (DownloadCallBack.() -> Unit)?): Boolean? {
+    override fun pauseDownload(url: String, fileName: String, callBack: (DownloadCallBack.() -> Unit)?): Boolean? {
         val call = DownloadCallBack(context)
         callBack?.let {
             call.apply(it)
         }
-        return DownloadManager.getInstance(context)?.pauseDownload(url, call)
+        return DownloadManager.getInstance(context)?.pauseDownload(url, fileName, call)
     }
 
-    override fun deleteDownload(url: String, callBack: (DownloadCallBack.() -> Unit)?): Boolean? {
+    override fun deleteDownload(url: String, fileName: String, callBack: (DownloadCallBack.() -> Unit)?): Boolean? {
         val call = DownloadCallBack(context)
         callBack?.let {
             call.apply(it)
         }
-        return DownloadManager.getInstance(context)?.deleteDownload(url, call)
+        return DownloadManager.getInstance(context)?.deleteDownload(url, fileName, call)
     }
 
     fun updateNotification(notification: Notification?) {

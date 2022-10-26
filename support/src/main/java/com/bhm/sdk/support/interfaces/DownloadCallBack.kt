@@ -56,6 +56,7 @@ class DownloadCallBack(val context: Context) : IDownLoadCallBack {
 
     override fun onInitialize(dLFModel: DownLoadFileModel) {
         dLFModel.status = DownLoadStatus.INITIAL
+        dLFModel.progress = 0f
         mainHandler.post { _initialize?.invoke(dLFModel) }
     }
 
@@ -69,7 +70,7 @@ class DownloadCallBack(val context: Context) : IDownLoadCallBack {
         if (dLFModel.progress >= 100f) {
             if (DownLoadUtil.checkExistFullFile(
                     context,
-                    dLFModel.downLoadUrl,
+                    dLFModel.fileName,
                     dLFModel.localParentPath
                 )
             ) {
@@ -77,7 +78,7 @@ class DownloadCallBack(val context: Context) : IDownLoadCallBack {
             } else {
                 dLFModel.progress = DownLoadUtil.getExistFileProgress(
                     context,
-                    dLFModel.downLoadUrl,
+                    dLFModel.fileName,
                     dLFModel.localParentPath
                 )
                 dLFModel.status = DownLoadStatus.STOP
@@ -101,7 +102,7 @@ class DownloadCallBack(val context: Context) : IDownLoadCallBack {
             if (dLFModel.progress >= 100f) {
                 if (DownLoadUtil.checkExistFullFile(
                         context,
-                        dLFModel.downLoadUrl,
+                        dLFModel.fileName,
                         dLFModel.localParentPath
                     )
                 ) {
@@ -109,7 +110,7 @@ class DownloadCallBack(val context: Context) : IDownLoadCallBack {
                 } else {
                     dLFModel.progress = DownLoadUtil.getExistFileProgress(
                         context,
-                        dLFModel.downLoadUrl,
+                        dLFModel.fileName,
                         dLFModel.localParentPath
                     )
                     dLFModel.status = DownLoadStatus.DOWNING
@@ -126,7 +127,7 @@ class DownloadCallBack(val context: Context) : IDownLoadCallBack {
         if (dLFModel.progress >= 100f) {
             if (DownLoadUtil.checkExistFullFile(
                     context,
-                    dLFModel.downLoadUrl,
+                    dLFModel.fileName,
                     dLFModel.localParentPath
                 )
             ) {
@@ -134,7 +135,7 @@ class DownloadCallBack(val context: Context) : IDownLoadCallBack {
             } else {
                 dLFModel.progress = DownLoadUtil.getExistFileProgress(
                     context,
-                    dLFModel.downLoadUrl,
+                    dLFModel.fileName,
                     dLFModel.localParentPath
                 )
                 dLFModel.status = DownLoadStatus.FAIL

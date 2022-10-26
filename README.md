@@ -25,7 +25,7 @@
         val parentPath = context.getExternalFilesDir("downloadFiles")?.absolutePath
         val downloadRequest = DownloadRequest(context)
         val downloadConfig: DownloadConfig = DownloadConfig.Builder()
-            .setMaxDownloadSize(2)
+            .setMaxDownloadSize(3)
             .setWriteTimeout(30)
             .setReadTimeout(30)
             .setConnectTimeout(15)
@@ -79,4 +79,4 @@
 
 ### TO DO
 
-#### 1、 重复文件下载
+#### 1、 网络变化监控

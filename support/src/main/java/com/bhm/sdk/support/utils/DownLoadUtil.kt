@@ -21,9 +21,8 @@ object DownLoadUtil {
      * @apiNote 获取已下载文件的进度
      * @author buhuiming
      */
-    fun getExistFileProgress(context: Context, url: String, parentPath: String): Float {
-        val fileName = getMD5FileName(url)
-        val length = SPUtil[context, DownloadConfig.SP_FILE_NAME, url, 0L] as Long
+    fun getExistFileProgress(context: Context, fileName: String, parentPath: String): Float {
+        val length = SPUtil[context, DownloadConfig.SP_FILE_NAME, fileName, 0L] as Long
         if (length > 0) {
             val file = File(parentPath)
             if (!file.exists()) {
@@ -40,9 +39,8 @@ object DownLoadUtil {
      * @apiNote 根据URL检测本地是否有已下载完成的文件
      * @author buhuiming
      */
-    fun checkExistFullFile(context: Context, url: String, parentPath: String): Boolean {
-        val fileName = getMD5FileName(url)
-        val length = SPUtil[context, DownloadConfig.SP_FILE_NAME, url, 0L] as Long
+    fun checkExistFullFile(context: Context, fileName: String, parentPath: String): Boolean {
+        val length = SPUtil[context, DownloadConfig.SP_FILE_NAME, fileName, 0L] as Long
         if (length > 0) {
             val file = File(parentPath)
             if (!file.exists()) {
@@ -62,7 +60,7 @@ object DownLoadUtil {
      * @apiNote 获取下载文件名字
      * @author buhuiming
      */
-    fun getMD5FileName(url: String): String {
+    fun generateFileName(url: String): String {
         return getMD5(url)
     }
 

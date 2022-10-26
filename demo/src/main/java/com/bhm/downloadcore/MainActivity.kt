@@ -43,7 +43,7 @@ class MainActivity : BaseVBActivity<MainViewModel, ActivityMainBinding>() {
             val model = adapter.data[position] as FileModel
             when (view.id) {
                 R.id.btnRestart -> {
-                    viewModel.restartDownload(model.downLoadUrl)
+                    viewModel.restartDownload(model.downLoadUrl, model.fileName)
                 }
                 R.id.btnChange -> {
                     when (model.status) {
@@ -58,20 +58,20 @@ class MainActivity : BaseVBActivity<MainViewModel, ActivityMainBinding>() {
                             }
                             model.status = DownLoadStatus.DOWNING
                             adapter.notifyItemChanged(position)
-                            viewModel.startDownload(model.downLoadUrl)
+                            viewModel.startDownload(model.downLoadUrl, model.fileName)
                         }
                         DownLoadStatus.WAITING -> {
-                            viewModel.deleteDownload(model.downLoadUrl)
+                            viewModel.deleteDownload(model.downLoadUrl, model.fileName)
                         }
                         DownLoadStatus.DOWNING -> {
-                            viewModel.pauseDownload(model.downLoadUrl)
+                            viewModel.pauseDownload(model.downLoadUrl, model.fileName)
                         }
                         DownLoadStatus.COMPETE -> {
                             //打开
                             viewModel.openFile(model.fileName)
                         }
                         DownLoadStatus.FAIL -> {
-                            viewModel.restartDownload(model.downLoadUrl)
+                            viewModel.restartDownload(model.downLoadUrl, model.fileName)
                         }
                         else -> {}
                     }

@@ -8,6 +8,8 @@ package com.bhm.downloadcore
 object Constants {
     val urls = arrayOf(
         "https://gdown.baidu.com/data/wisegame/e229ae333a7d62b8/6debe229ae333a7d62b8a17b439a9b45.apk",
+        "https://gdown.baidu.com/data/wisegame/e229ae333a7d62b8/6debe229ae333a7d62b8a17b439a9b45.apk",
+        "https://gdown.baidu.com/data/wisegame/e229ae333a7d62b8/6debe229ae333a7d62b8a17b439a9b45.apk",
         "https://mraw.bus365.cn/files/group1/M00/00/F8/wKgDEl-X5nGAQMxkAe7MXjwMMyU347.apk",
         "https://dldir1.qq.com/weixin/android/weixin8015android2020_arm64.apk",
         "https://down.qq.com/qqweb/QQ_1/android_apk/Android_8.8.38.6590_537100432.apk",

@@ -25,13 +25,15 @@ class MainViewModel(private val context: Application) : BaseViewModel(context = 
 
     val downloadList = MutableLiveData<ArrayList<FileModel>>()
 
-    private val callBackList = HashMap<String, (DownloadCallBack.() -> Unit)?>()
+    private val callBackList = HashMap<String, HashMap<String, (DownloadCallBack.() -> Unit)?>>()
 
     private var parentPath: String? = null
 
     private var downloadNotification: Notification? = null
 
     private val downloadInTheBackground = true
+
+    private val fileModelList = ArrayList<FileModel>()
 
     fun initDownloadManager() {
         NotificationUtil.getInstance(context)?.init(
@@ -82,51 +84,31 @@ class MainViewModel(private val context: Application) : BaseViewModel(context = 
     }
 
     fun initDownloadList() {
-        val list = arrayListOf(
-            FileModel(
-                downLoadUrl = Constants.urls[0],
-                fileName = DownLoadUtil.getMD5FileName(Constants.urls[0]),
-                status = getStatus(Constants.urls[0]),
-                progress = getProgress(Constants.urls[0])
-            ),
-            FileModel(
-                downLoadUrl = Constants.urls[1],
-                fileName = DownLoadUtil.getMD5FileName(Constants.urls[1]),
-                status = getStatus(Constants.urls[1]),
-                progress = getProgress(Constants.urls[1])
-            ),
-            FileModel(
-                downLoadUrl = Constants.urls[2],
-                fileName = DownLoadUtil.getMD5FileName(Constants.urls[2]),
-                status = getStatus(Constants.urls[2]),
-                progress = getProgress(Constants.urls[2])
-            ),
-            FileModel(
-                downLoadUrl = Constants.urls[3],
-                fileName = DownLoadUtil.getMD5FileName(Constants.urls[3]),
-                status = getStatus(Constants.urls[3]),
-                progress = getProgress(Constants.urls[3])
-            ),
-            FileModel(
-                downLoadUrl = Constants.urls[4],
-                fileName = DownLoadUtil.getMD5FileName(Constants.urls[4]),
-                status = getStatus(Constants.urls[4]),
-                progress = getProgress(Constants.urls[4])
-            ),
-        )
-        downloadList.postValue(list)
+        Constants.urls.forEach { url ->
+            val fileName = generateFileName(fileModelList, url)
+            val fileModel = FileModel(
+                downLoadUrl = url,
+                fileName = fileName,
+                status = getStatus(fileName),
+                progress = getProgress(fileName)
+            )
+            fileModelList.add(fileModel)
+        }
+        downloadList.postValue(fileModelList)
 
-        list.forEach {
-            callBackList[it.downLoadUrl] = {
+        fileModelList.forEach {
+            val map = HashMap<String, (DownloadCallBack.() -> Unit)?>()
+            map[it.downLoadUrl] = {
                 onInitialize { model->
                     Timber.d("onInitialize: " + model.downLoadUrl)
                     it.status = model.status
-                    downloadList.postValue(list)
+                    it.progress = 0f
+                    downloadList.postValue(fileModelList)
                 }
                 onWaiting { model->
                     Timber.d("onWaiting: " + model.downLoadUrl)
                     it.status = model.status
-                    downloadList.postValue(list)
+                    downloadList.postValue(fileModelList)
                 }
                 onProgress { model->
                     Timber.d("url: " + model.downLoadUrl)
@@ -136,80 +118,81 @@ class MainViewModel(private val context: Application) : BaseViewModel(context = 
                     )
                     it.progress = model.progress
                     it.status = model.status
-                    downloadList.postValue(list)
+                    downloadList.postValue(fileModelList)
                 }
                 onStop { model->
                     Timber.d("onStop")
                     it.status = model.status
-                    downloadList.postValue(list)
+                    downloadList.postValue(fileModelList)
                 }
                 onComplete { model->
                     Timber.d("onComplete")
                     it.status = model.status
-                    downloadList.postValue(list)
+                    downloadList.postValue(fileModelList)
                 }
                 onFail { model, throwable ->
                     Timber.d("onFail" + throwable.message)
                     it.status = model.status
-                    downloadList.postValue(list)
+                    downloadList.postValue(fileModelList)
                 }
             }
+            callBackList[it.fileName] = map
         }
     }
 
-    private fun getStatus(url: String): DownLoadStatus {
-        if (DownLoadUtil.checkExistFullFile(context, url, parentPath!!)) {
+    private fun getStatus(fileName: String): DownLoadStatus {
+        if (DownLoadUtil.checkExistFullFile(context, fileName, parentPath!!)) {
             return DownLoadStatus.COMPETE
         }
-        val progress = getProgress(url)
+        val progress = getProgress(fileName)
         if (progress > 0) {
             return DownLoadStatus.STOP
         }
         return DownLoadStatus.INITIAL
     }
 
-    private fun getProgress(url: String): Float {
-        return DownLoadUtil.getExistFileProgress(context, url, parentPath!!)
+    private fun getProgress(fileName: String): Float {
+        return DownLoadUtil.getExistFileProgress(context, fileName, parentPath!!)
     }
 
-    fun startDownload(url: String) {
-        downloadRequest?.startDownload(url, callBackList[url])
+    fun startDownload(url: String, fileName: String) {
+        downloadRequest?.startDownload(url, fileName, callBackList[fileName]?.get(url))
     }
 
     fun startAllDownloads() {
         callBackList.forEach {
-            startDownload(it.key)
+            startDownload(it.value.keys.first(), it.key)
         }
     }
 
-    fun restartDownload(url: String) {
-        downloadRequest?.reStartDownload(url, callBackList[url])
+    fun restartDownload(url: String, fileName: String) {
+        downloadRequest?.reStartDownload(url, fileName, callBackList[fileName]?.get(url))
     }
 
-    fun pauseDownload(url: String) {
-        downloadRequest?.pauseDownload(url, callBackList[url])
+    fun pauseDownload(url: String, fileName: String) {
+        downloadRequest?.pauseDownload(url, fileName, callBackList[fileName]?.get(url))
     }
 
     fun pauseAllDownloads() {
         callBackList.forEach {
-            pauseDownload(it.key)
+            pauseDownload(it.value.keys.first(), it.key)
         }
     }
 
-    fun deleteDownload(url: String) {
+    fun deleteDownload(url: String, fileName: String) {
         //删除已下载文件
-        downloadRequest?.deleteDownload(url, callBackList[url])
+        downloadRequest?.deleteDownload(url, fileName, callBackList[fileName]?.get(url))
     }
 
     fun deleteAllDownloads() {
         //全部删除已下载文件
         callBackList.forEach {
-            deleteDownload(it.key)
+            deleteDownload(it.value.keys.first(), it.key)
         }
     }
 
-    fun openFile(fileName: String?) {
-        if (fileName == null || fileName == "") return
+    fun openFile(fileName: String) {
+        if (fileName == "") return
         val filePath = parentPath + File.separator + fileName
         val intent = Intent()
         intent.action = Intent.ACTION_VIEW
@@ -228,4 +211,22 @@ class MainViewModel(private val context: Application) : BaseViewModel(context = 
         }
         context.startActivity(intent)
     }
+
+    /*重复文件命名*/
+    private fun generateFileName(fileModelList: ArrayList<FileModel>, url: String): String {
+        if (fileModelList.isEmpty()) {
+            return DownLoadUtil.generateFileName(url)
+        }
+        val newFileModelList = ArrayList<FileModel>()
+        fileModelList.forEach {
+            if (url == it.downLoadUrl) {
+                newFileModelList.add(it)
+            }
+        }
+        if (newFileModelList.isEmpty()) {
+            return DownLoadUtil.generateFileName(url)
+        }
+        return DownLoadUtil.generateFileName(url) + "(${newFileModelList.size})"
+    }
+
 }
