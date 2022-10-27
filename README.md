@@ -5,7 +5,8 @@
 #### 支持设置后台下载，自定义Notification
 #### 支持设置重复文件下载
 
-![289c2cc0ef2ff44268caa9e51272ddc](https://user-images.githubusercontent.com/30099293/197741444-284952fd-2247-4458-81c0-e6122916edde.jpg)
+![55f2ed59eaf3137d536a84151d78e63](https://user-images.githubusercontent.com/30099293/197972403-47566ee6-6d92-4e5d-a5b6-f099b1197131.jpg)
+
 
 
 ### 用法
@@ -79,4 +80,6 @@
 
 ### TO DO
 
-#### 1、 网络变化监控
+#### 1、 取消callback方式，改用观察者注册方式
+
+#### 2、 网络变化监控
