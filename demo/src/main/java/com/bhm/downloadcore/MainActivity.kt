@@ -72,7 +72,7 @@ class MainActivity : BaseVBActivity<MainViewModel, ActivityMainBinding>() {
                             viewModel.openFile(model.fileName)
                         }
                         DownLoadStatus.FAIL -> {
-                            viewModel.restartDownload(model.downLoadUrl, model.fileName)
+                            viewModel.startDownload(model.downLoadUrl, model.fileName)
                         }
                         else -> {}
                     }
@@ -152,6 +152,7 @@ class MainActivity : BaseVBActivity<MainViewModel, ActivityMainBinding>() {
 
     override fun onDestroy() {
         super.onDestroy()
+        viewModel.onDestroy()
         Timber.d("MainActivity onDestroy")
     }
 }

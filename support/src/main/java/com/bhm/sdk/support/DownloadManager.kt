@@ -6,7 +6,7 @@ import android.app.Notification
 import android.os.Bundle
 import android.util.Log
 import com.bhm.sdk.support.DownloadConfig.Companion.SP_FILE_NAME
-import com.bhm.sdk.support.interfaces.IDownLoadCallBack
+import com.bhm.sdk.support.observer.DownloadEngine
 import com.bhm.sdk.support.service.DownloadService
 import com.bhm.sdk.support.utils.DownLoadUtil
 import com.bhm.sdk.support.utils.NetUtil
@@ -82,25 +82,25 @@ internal class DownloadManager private constructor(private val context: Applicat
         }
     }
 
-    fun startDownload(url: String, fileName: String, callBack: IDownLoadCallBack): Boolean {
+    fun startDownload(url: String, fileName: String): Boolean {
         val fileModel = buildModel(url, fileName)
-        return startDownload(fileModel, callBack)
+        return startDownload(fileModel)
     }
 
-    fun reStartDownload(url: String, fileName: String, callBack: IDownLoadCallBack): Boolean {
+    fun reStartDownload(url: String, fileName: String): Boolean {
         deleteFile(url, fileName, true)
         val fileModel = buildModel(url, fileName)
-        return startDownload(fileModel, callBack)
+        return startDownload(fileModel)
     }
 
-    private fun startDownload(fileModel: DownLoadFileModel, callBack: IDownLoadCallBack): Boolean {
+    private fun startDownload(fileModel: DownLoadFileModel): Boolean {
         if (DownLoadUtil.checkExistFullFile(
                 context,
                 fileModel.fileName,
                 fileModel.localParentPath
             )
         ) {
-            callBack.onComplete(fileModel)
+            DownloadEngine.get().onComplete(fileModel)
             Log.i(TAG, "file is already download")
             return false
         }
@@ -128,7 +128,7 @@ internal class DownloadManager private constructor(private val context: Applicat
                 .runningCallsCount() >= (downloadConfig?.getMaxDownloadSize()?: DownloadConfig.MAX_DOWNING_SIZE)
         ) {
             //等待队列数和下载队列数超过1个，则加入等待
-            callBack.onWaiting(fileModel)
+            DownloadEngine.get().onWaiting(fileModel)
         }
 
         if (downloadConfig?.downloadNotification() != null && downloadCallHashMap.size == 0) {
@@ -156,12 +156,12 @@ internal class DownloadManager private constructor(private val context: Applicat
                             downloadConfig?.getDownloadParentPath()!!,
                             ) == 0f) {
                         //用户删除队列中的请求，显示未开始
-                        callBack.onInitialize(fileModel)
+                        DownloadEngine.get().onInitialize(fileModel)
                     } else {
-                        callBack.onStop(fileModel)
+                        DownloadEngine.get().onStop(fileModel)
                     }
                 } else {
-                    callBack.onFail(fileModel, e)
+                    DownloadEngine.get().onFail(fileModel, e)
                 }
                 removeDownload(fileModel.downLoadUrl, fileModel.fileName)
             }
@@ -178,10 +178,10 @@ internal class DownloadManager private constructor(private val context: Applicat
                             body.contentLength()
                         )
                     }
-                    saveFile(fileModel, body.byteStream(), body.contentLength(), callBack)
+                    saveFile(fileModel, body.byteStream(), body.contentLength())
                 } else {
                     Log.e(TAG, "ResponseBody is null.")
-                    callBack.onFail(fileModel, Exception("ResponseBody is null."))
+                    DownloadEngine.get().onFail(fileModel, Exception("ResponseBody is null."))
                 }
             }
         })
@@ -206,11 +206,11 @@ internal class DownloadManager private constructor(private val context: Applicat
         }
     }
 
-    fun pauseDownload(url: String, fileName: String, callBack: IDownLoadCallBack): Boolean{
+    fun pauseDownload(url: String, fileName: String): Boolean{
         for ((key, value) in downloadCallHashMap) {
             if (value.downLoadUrl == url && value.fileName == fileName) {
                 key.cancel()
-                callBack.onStop(value)
+                DownloadEngine.get().onStop(value)
                 Log.i(TAG, "cancel download")
                 return true
             }
@@ -220,11 +220,11 @@ internal class DownloadManager private constructor(private val context: Applicat
     }
 
     @Synchronized
-    fun deleteDownload(url: String, fileName: String, callBack: IDownLoadCallBack): Boolean {
+    fun deleteDownload(url: String, fileName: String): Boolean {
         deleteFile(url, fileName, false)
         val buildModel = buildModel(url, fileName)
         if (downloadCallHashMap.size == 0) {
-            callBack.onInitialize(buildModel)
+            DownloadEngine.get().onInitialize(buildModel)
             return true
         }
         val iterator = downloadCallHashMap.iterator()
@@ -232,13 +232,13 @@ internal class DownloadManager private constructor(private val context: Applicat
             val model = iterator.next()
             if (model.value.downLoadUrl == url && model.value.fileName == fileName) {
                 model.key.cancel()
-                callBack.onInitialize(model.value)
+                DownloadEngine.get().onInitialize(model.value)
                 iterator.remove()
                 Log.i(TAG, "delete download url")
                 isAllComplete()
                 return true
             } else {
-                callBack.onInitialize(buildModel)
+                DownloadEngine.get().onInitialize(buildModel)
             }
         }
         Log.i(TAG, "download already delete")
@@ -293,13 +293,14 @@ internal class DownloadManager private constructor(private val context: Applicat
         )
     }
 
-    private fun saveFile(dLFModel: DownLoadFileModel, inputString: InputStream, byteLength: Long, callBack: IDownLoadCallBack) {
+    private fun saveFile(dLFModel: DownLoadFileModel, inputString: InputStream, byteLength: Long) {
         Log.i(TAG, "saveFile--> byteLength: $byteLength")
         if (byteLength == 0L && dLFModel.downLoadLength > 0) {
-            callBack.onComplete(dLFModel)
+            DownloadEngine.get().onComplete(dLFModel)
             return  //已经下载好了
         }
         val totalLength: Long = dLFModel.downLoadLength + byteLength
+        var lastProgress = 0f
         dLFModel.totalLength = totalLength
         try {
             val file = File(dLFModel.localParentPath)
@@ -318,7 +319,10 @@ internal class DownloadManager private constructor(private val context: Applicat
                 if (dLFModel.progress >= 100) {
                     removeDownload(dLFModel.downLoadUrl, dLFModel.fileName)
                 }
-                callBack.onProgress(dLFModel)
+                if (lastProgress < dLFModel.progress) {
+                    lastProgress = dLFModel.progress
+                    DownloadEngine.get().onProgress(dLFModel)
+                }
             }
             fos.flush()
             inputString.close()
@@ -332,18 +336,18 @@ internal class DownloadManager private constructor(private val context: Applicat
                         downloadConfig?.getDownloadParentPath()!!
                     ) == 0f) {
                     //用户删除队列中的请求，显示未开始
-                    callBack.onInitialize(dLFModel)
+                    DownloadEngine.get().onInitialize(dLFModel)
                 } else {
-                    callBack.onStop(dLFModel)
+                    DownloadEngine.get().onStop(dLFModel)
                 }
             } else {
                 Log.e(TAG, "saving onFailure: " + (e.message?: " IOException") + ", " + dLFModel.downLoadUrl)
-                callBack.onFail(dLFModel, e)
+                DownloadEngine.get().onFail(dLFModel, e)
             }
             removeDownload(dLFModel.downLoadUrl, dLFModel.fileName)
         } finally {
             if (dLFModel.downLoadLength >= totalLength) {
-                callBack.onComplete(dLFModel)
+                DownloadEngine.get().onComplete(dLFModel)
             }
         }
     }

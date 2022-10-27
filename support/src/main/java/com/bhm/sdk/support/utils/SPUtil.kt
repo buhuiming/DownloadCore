@@ -5,7 +5,6 @@ package com.bhm.sdk.support.utils
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
-import java.lang.IllegalArgumentException
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 

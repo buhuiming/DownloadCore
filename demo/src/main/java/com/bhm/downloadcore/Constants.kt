@@ -22,4 +22,6 @@ object Constants {
     const val NOTIFICATION_ID = 111111
 
     const val DOWNLOAD_OVER_WIFI_ONLY = true
+
+    const val DOWNLOAD_IN_THE_BACKGROUND = true
 }

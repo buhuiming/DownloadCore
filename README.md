@@ -36,50 +36,67 @@
             .build()
         downloadRequest?.newRequest(downloadConfig)
 
-#### 2、 添加、开始下载
-        downloadRequest?.startDownload(url, { 
-            onInitialize { model->
-            
+        //为每一个下载 添加下载监听
+        DownloadEngine.get().register(fileName, object : DownloadObserver(context) {
+            override fun onInitialize(dLFModel: DownLoadFileModel) {
+                super.onInitialize(dLFModel)
+                Timber.d("onInitialize: " + dLFModel.downLoadUrl)
+             }
+
+            override fun onWaiting(dLFModel: DownLoadFileModel) {
+                super.onWaiting(dLFModel)
+                Timber.d("onWaiting: " + dLFModel.downLoadUrl)
             }
-            onWaiting { model->
-            
+
+            override fun onStop(dLFModel: DownLoadFileModel) {
+                super.onStop(dLFModel)
+                Timber.d("onStop")
             }
-            onProgress { model->
+
+            override fun onComplete(dLFModel: DownLoadFileModel) {
+                super.onComplete(dLFModel)
+                Timber.d("onComplete")
+            }
+
+            override fun onProgress(dLFModel: DownLoadFileModel) {
+                super.onProgress(dLFModel)
+                Timber.d("url: " + dLFModel.downLoadUrl)
                 Timber.d(
-                    "totalLength: " + model.totalLength.toString() + ", totalReadBytes: " +
-                    model.downLoadLength.toString() + ", progress: " + model.progress
+                    "totalLength: " + dLFModel.totalLength.toString() + ", totalReadBytes: " +
+                            dLFModel.downLoadLength.toString() + ", progress: " + dLFModel.progress
                 )
             }
-            onStop { model->
 
-            }
-            onComplete { model->
-
-            }
-            onFail { model, throwable ->
-            
+            override fun onFail(dLFModel: DownLoadFileModel, throwable: Throwable) {
+                super.onFail(dLFModel, throwable)
+                Timber.d("onFail" + throwable.message)
             }
         })
+#### 2、 添加、开始下载
+        downloadRequest?.startDownload(url, fileName)
          
 #### 3、 重新下载
-        downloadRequest?.reStartDownload(url, {})
+        downloadRequest?.reStartDownload(url, fileName)
          
 #### 4、 暂停下载
-        downloadRequest?.pauseDownload(url, {})
+        downloadRequest?.pauseDownload(url, fileName)
          
 #### 5、 删除下载(文件会被删除)
-        downloadRequest?.deleteDownload(url, {})
+        downloadRequest?.deleteDownload(url, fileName)
 
 #### 6、 检查下载是否完成
-        DownLoadUtil.checkExistFullFile(context, url, parentPath)
+        DownLoadUtil.checkExistFullFile(context, fileName, parentPath)
 
 #### 7、 检查是否存在未完成下载(0 < progress < 100)
-        DownLoadUtil.getExistFileProgress(context, url, parentPath)
+        DownLoadUtil.getExistFileProgress(context, fileName, parentPath)
+
+#### 7、 取消某个下载监听，关闭所有下载监听
+        DownloadEngine.get().unRegister(fileName)
+
+        DownloadEngine.get().close()
 
 #### 7、 更多请参考Demo
 
 ### TO DO
 
-#### 1、 取消callback方式，改用观察者注册方式
-
-#### 2、 网络变化监控
+#### 1、 网络变化监控

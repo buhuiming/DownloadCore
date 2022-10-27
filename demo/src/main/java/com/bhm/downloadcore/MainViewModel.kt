@@ -1,13 +1,19 @@
 package com.bhm.downloadcore
 
-import android.app.*
+import android.app.Application
+import android.app.Notification
+import android.app.PendingIntent
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import androidx.core.content.FileProvider
 import androidx.lifecycle.MutableLiveData
-import com.bhm.sdk.support.*
-import com.bhm.sdk.support.interfaces.DownloadCallBack
+import com.bhm.sdk.support.DownLoadFileModel
+import com.bhm.sdk.support.DownLoadStatus
+import com.bhm.sdk.support.DownloadConfig
+import com.bhm.sdk.support.DownloadRequest
+import com.bhm.sdk.support.observer.DownloadEngine
+import com.bhm.sdk.support.observer.DownloadObserver
 import com.bhm.sdk.support.utils.DownLoadUtil
 import com.bhm.support.sdk.common.BaseViewModel
 import com.bhm.support.sdk.utils.NotificationUtil
@@ -25,13 +31,9 @@ class MainViewModel(private val context: Application) : BaseViewModel(context = 
 
     val downloadList = MutableLiveData<ArrayList<FileModel>>()
 
-    private val callBackList = HashMap<String, HashMap<String, (DownloadCallBack.() -> Unit)?>>()
-
     private var parentPath: String? = null
 
     private var downloadNotification: Notification? = null
-
-    private val downloadInTheBackground = true
 
     private val fileModelList = ArrayList<FileModel>()
 
@@ -43,7 +45,7 @@ class MainViewModel(private val context: Application) : BaseViewModel(context = 
         )
         parentPath = context.getExternalFilesDir("downloadFiles")?.absolutePath
         downloadRequest = DownloadRequest(context)
-        downloadNotification = if (downloadInTheBackground) {
+        downloadNotification = if (Constants.DOWNLOAD_IN_THE_BACKGROUND) {
             downloadNotification()
         } else {
             null
@@ -94,50 +96,64 @@ class MainViewModel(private val context: Application) : BaseViewModel(context = 
             )
             fileModelList.add(fileModel)
         }
+
         downloadList.postValue(fileModelList)
 
         fileModelList.forEach {
-            val map = HashMap<String, (DownloadCallBack.() -> Unit)?>()
-            map[it.downLoadUrl] = {
-                onInitialize { model->
-                    Timber.d("onInitialize: " + model.downLoadUrl)
-                    it.status = model.status
+            DownloadEngine.get().register(it.fileName, object : DownloadObserver(context) {
+                override fun onInitialize(dLFModel: DownLoadFileModel) {
+                    super.onInitialize(dLFModel)
+                    Timber.d("onInitialize: " + dLFModel.downLoadUrl)
+                    it.status = dLFModel.status
                     it.progress = 0f
                     downloadList.postValue(fileModelList)
                 }
-                onWaiting { model->
-                    Timber.d("onWaiting: " + model.downLoadUrl)
-                    it.status = model.status
+
+                override fun onWaiting(dLFModel: DownLoadFileModel) {
+                    super.onWaiting(dLFModel)
+                    Timber.d("onWaiting: " + dLFModel.downLoadUrl)
+                    it.status = dLFModel.status
                     downloadList.postValue(fileModelList)
                 }
-                onProgress { model->
-                    Timber.d("url: " + model.downLoadUrl)
-                    Timber.d(
-                        "totalLength: " + model.totalLength.toString() + ", totalReadBytes: " +
-                                model.downLoadLength.toString() + ", progress: " + model.progress
-                    )
-                    it.progress = model.progress
-                    it.status = model.status
-                    downloadList.postValue(fileModelList)
-                }
-                onStop { model->
+
+                override fun onStop(dLFModel: DownLoadFileModel) {
+                    super.onStop(dLFModel)
                     Timber.d("onStop")
-                    it.status = model.status
+                    it.status = dLFModel.status
                     downloadList.postValue(fileModelList)
                 }
-                onComplete { model->
+
+                override fun onComplete(dLFModel: DownLoadFileModel) {
+                    super.onComplete(dLFModel)
                     Timber.d("onComplete")
-                    it.status = model.status
+                    it.status = dLFModel.status
                     downloadList.postValue(fileModelList)
                 }
-                onFail { model, throwable ->
+
+                override fun onProgress(dLFModel: DownLoadFileModel) {
+                    super.onProgress(dLFModel)
+                    Timber.d("url: " + dLFModel.downLoadUrl)
+                    Timber.d(
+                        "totalLength: " + dLFModel.totalLength.toString() + ", totalReadBytes: " +
+                                dLFModel.downLoadLength.toString() + ", progress: " + dLFModel.progress
+                    )
+                    it.progress = dLFModel.progress
+                    it.status = dLFModel.status
+                    downloadList.postValue(fileModelList)
+                }
+
+                override fun onFail(dLFModel: DownLoadFileModel, throwable: Throwable) {
+                    super.onFail(dLFModel, throwable)
                     Timber.d("onFail" + throwable.message)
-                    it.status = model.status
+                    it.status = dLFModel.status
                     downloadList.postValue(fileModelList)
                 }
-            }
-            callBackList[it.fileName] = map
+            })
         }
+    }
+
+    fun onDestroy() {
+        DownloadEngine.get().close()
     }
 
     private fun getStatus(fileName: String): DownLoadStatus {
@@ -156,38 +172,38 @@ class MainViewModel(private val context: Application) : BaseViewModel(context = 
     }
 
     fun startDownload(url: String, fileName: String) {
-        downloadRequest?.startDownload(url, fileName, callBackList[fileName]?.get(url))
+        downloadRequest?.startDownload(url, fileName)
     }
 
     fun startAllDownloads() {
-        callBackList.forEach {
-            startDownload(it.value.keys.first(), it.key)
+        fileModelList.forEach {
+            startDownload(it.downLoadUrl, it.fileName)
         }
     }
 
     fun restartDownload(url: String, fileName: String) {
-        downloadRequest?.reStartDownload(url, fileName, callBackList[fileName]?.get(url))
+        downloadRequest?.reStartDownload(url, fileName)
     }
 
     fun pauseDownload(url: String, fileName: String) {
-        downloadRequest?.pauseDownload(url, fileName, callBackList[fileName]?.get(url))
+        downloadRequest?.pauseDownload(url, fileName)
     }
 
     fun pauseAllDownloads() {
-        callBackList.forEach {
-            pauseDownload(it.value.keys.first(), it.key)
+        fileModelList.forEach {
+            pauseDownload(it.downLoadUrl, it.fileName)
         }
     }
 
     fun deleteDownload(url: String, fileName: String) {
         //删除已下载文件
-        downloadRequest?.deleteDownload(url, fileName, callBackList[fileName]?.get(url))
+        downloadRequest?.deleteDownload(url, fileName)
     }
 
     fun deleteAllDownloads() {
         //全部删除已下载文件
-        callBackList.forEach {
-            deleteDownload(it.value.keys.first(), it.key)
+        fileModelList.forEach {
+            deleteDownload(it.downLoadUrl, it.fileName)
         }
     }
 
