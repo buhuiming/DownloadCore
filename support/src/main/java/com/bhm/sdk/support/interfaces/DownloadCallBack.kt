@@ -1,8 +1,6 @@
 package com.bhm.sdk.support.interfaces
 
 import android.content.Context
-import android.os.Handler
-import android.os.Looper
 import com.bhm.sdk.support.DownLoadFileModel
 import com.bhm.sdk.support.DownLoadStatus
 import com.bhm.sdk.support.utils.DownLoadUtil
@@ -25,8 +23,6 @@ class DownloadCallBack(val context: Context) : IDownLoadCallBack {
     private var _progress: ((dLFModel: DownLoadFileModel) -> Unit)? = null
 
     private var _fail: ((dLFModel: DownLoadFileModel, throwable: Throwable) -> Unit)? = null
-
-    private val mainHandler = Handler(Looper.getMainLooper())
 
     private var lastProgress = 0f
 
@@ -57,12 +53,12 @@ class DownloadCallBack(val context: Context) : IDownLoadCallBack {
     override fun onInitialize(dLFModel: DownLoadFileModel) {
         dLFModel.status = DownLoadStatus.INITIAL
         dLFModel.progress = 0f
-        mainHandler.post { _initialize?.invoke(dLFModel) }
+        _initialize?.invoke(dLFModel)
     }
 
     override fun onWaiting(dLFModel: DownLoadFileModel) {
         dLFModel.status = DownLoadStatus.WAITING
-        mainHandler.post { _waiting?.invoke(dLFModel) }
+        _waiting?.invoke(dLFModel)
     }
 
     override fun onStop(dLFModel: DownLoadFileModel) {
@@ -86,12 +82,12 @@ class DownloadCallBack(val context: Context) : IDownLoadCallBack {
         } else {
             dLFModel.status = DownLoadStatus.STOP
         }
-        mainHandler.post { _stop?.invoke(dLFModel) }
+        _stop?.invoke(dLFModel)
     }
 
     override fun onComplete(dLFModel: DownLoadFileModel) {
         dLFModel.status = DownLoadStatus.COMPETE
-        mainHandler.post { _complete?.invoke(dLFModel) }
+        _complete?.invoke(dLFModel)
     }
 
     override fun onProgress(dLFModel: DownLoadFileModel) {
@@ -118,7 +114,7 @@ class DownloadCallBack(val context: Context) : IDownLoadCallBack {
             } else {
                 dLFModel.status = DownLoadStatus.DOWNING
             }
-            mainHandler.post { _progress?.invoke(dLFModel) }
+            _progress?.invoke(dLFModel)
         }
     }
 
@@ -143,6 +139,6 @@ class DownloadCallBack(val context: Context) : IDownLoadCallBack {
         } else {
             dLFModel.status = DownLoadStatus.FAIL
         }
-        mainHandler.post { _fail?.invoke(dLFModel, throwable) }
+        _fail?.invoke(dLFModel, throwable)
     }
 }

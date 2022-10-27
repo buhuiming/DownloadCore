@@ -10,6 +10,7 @@ import com.bhm.sdk.support.utils.NetUtil
 import com.bhm.support.sdk.common.BaseVBActivity
 import com.bhm.support.sdk.core.AppTheme
 import com.bhm.support.sdk.interfaces.PermissionCallBack
+import timber.log.Timber
 
 class MainActivity : BaseVBActivity<MainViewModel, ActivityMainBinding>() {
 
@@ -147,5 +148,10 @@ class MainActivity : BaseVBActivity<MainViewModel, ActivityMainBinding>() {
         viewBinding.btnAllStart.isEnabled = isAllStart
         viewBinding.btnAllPause.isEnabled = isAllPause
         viewBinding.btnAllDelete.isEnabled = isAllDelete
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Timber.d("MainActivity onDestroy")
     }
 }
