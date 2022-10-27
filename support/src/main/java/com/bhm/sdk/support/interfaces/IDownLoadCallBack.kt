@@ -7,7 +7,7 @@ import com.bhm.sdk.support.DownLoadFileModel
  * * @description: 下载回调
  * * @date :2022/10/19 16:49
  */
-interface IDownLoadCallBack {
+internal interface IDownLoadCallBack {
 
     fun onInitialize(dLFModel: DownLoadFileModel)
 

@@ -5,7 +5,7 @@ import com.bhm.sdk.support.interfaces.IDownLoadCallBack
 
 /**
  * @author Buhuiming
- * @description:  被观察者
+ * @description: 下载回调被观察者
  * @date :2022/10/27 9:47
  */
 internal class DownloadObservable : IDownLoadCallBack{
@@ -31,6 +31,8 @@ internal class DownloadObservable : IDownLoadCallBack{
     fun removeAllDownloadObserver() {
         observers.clear()
     }
+
+    fun hasObservers() = observers.size > 0
 
     override fun onInitialize(dLFModel: DownLoadFileModel) {
         observers.forEach {

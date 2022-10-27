@@ -74,9 +74,9 @@ internal class DownloadManager private constructor(private val context: Applicat
                         for ((key, _) in downloadCallHashMap) {
                             key.cancel()
                         }
-                        Log.e(TAG, "root activity finish, cancel all downloads")
+                        printELog("root activity finish, cancel all downloads")
                     }
-                    Log.e(TAG, "activity finish, onActivityDestroyed")
+                    printELog("activity finish, onActivityDestroyed")
                 }
             })
         }
@@ -101,29 +101,29 @@ internal class DownloadManager private constructor(private val context: Applicat
             )
         ) {
             DownloadEngine.get().onComplete(fileModel)
-            Log.i(TAG, "file is already download")
+            printILog("file is already download")
             return false
         }
         for ((_, value) in downloadCallHashMap) {
             if (value.downLoadUrl == fileModel.downLoadUrl && value.fileName == fileModel.fileName) {
                 //已经添加下载了
-                Log.i(TAG, "file is already add to download")
+                printILog("file is already add to download")
                 return false
             }
         }
 
         if (!NetUtil.isNetWorkConnected(context)) {
-            Log.i(TAG, "NetWork unConnected")
+            printILog("NetWork unConnected")
             return false
         }
 
-        if (downloadConfig?.downloadOverWiFiOnly() == true && !NetUtil.isWifiConnected(context)) {
-            Log.i(TAG, "download over WiFi only")
+        if (downloadConfig?.isDownloadOverWiFiOnly() == true && !NetUtil.isWifiConnected(context)) {
+            printILog("download over WiFi only")
             return false
         }
 
-        Log.i(TAG, "queuedCallsCount: " + okHttpClient!!.dispatcher.queuedCallsCount())
-        Log.i(TAG, "runningCallsCount: " + okHttpClient!!.dispatcher.runningCallsCount())
+        printILog("queuedCallsCount: " + okHttpClient!!.dispatcher.queuedCallsCount())
+        printILog("runningCallsCount: " + okHttpClient!!.dispatcher.runningCallsCount())
         if (okHttpClient!!.dispatcher.queuedCallsCount() + okHttpClient!!.dispatcher
                 .runningCallsCount() >= (downloadConfig?.getMaxDownloadSize()?: DownloadConfig.MAX_DOWNING_SIZE)
         ) {
@@ -133,7 +133,7 @@ internal class DownloadManager private constructor(private val context: Applicat
 
         if (downloadConfig?.downloadNotification() != null && downloadCallHashMap.size == 0) {
             updateNotification(downloadConfig?.downloadNotification())
-            Log.i(TAG, "启动下载服务 ")
+            printILog("启动下载服务 ")
         }
 
         val request: Request = Request.Builder()
@@ -144,17 +144,17 @@ internal class DownloadManager private constructor(private val context: Applicat
         // 使用OkHttp请求服务器
         val call = okHttpClient!!.newCall(request)
         downloadCallHashMap[call] = fileModel
-        Log.i(TAG, "add a download")
+        printILog("add a download")
 //        call.execute(); 这个数同步操作
         call.enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                Log.e(TAG, "onFailure: " + (e.message?: " IOException") + ", " + fileModel.downLoadUrl)
+                printELog("onFailure: " + (e.message?: " IOException") + ", " + fileModel.downLoadUrl)
                 if (e is StreamResetException || e is SocketException || call.isCanceled()) {
                     if (DownLoadUtil.getExistFileProgress(
                             context,
                             fileModel.fileName,
                             downloadConfig?.getDownloadParentPath()!!,
-                            ) == 0f) {
+                        ) == 0f) {
                         //用户删除队列中的请求，显示未开始
                         DownloadEngine.get().onInitialize(fileModel)
                     } else {
@@ -180,7 +180,7 @@ internal class DownloadManager private constructor(private val context: Applicat
                     }
                     saveFile(fileModel, body.byteStream(), body.contentLength())
                 } else {
-                    Log.e(TAG, "ResponseBody is null.")
+                    printELog("ResponseBody is null.")
                     DownloadEngine.get().onFail(fileModel, Exception("ResponseBody is null."))
                 }
             }
@@ -211,11 +211,11 @@ internal class DownloadManager private constructor(private val context: Applicat
             if (value.downLoadUrl == url && value.fileName == fileName) {
                 key.cancel()
                 DownloadEngine.get().onStop(value)
-                Log.i(TAG, "cancel download")
+                printILog("cancel download")
                 return true
             }
         }
-        Log.i(TAG, "cancel download fail：")
+        printILog("cancel download fail：")
         return false
     }
 
@@ -234,37 +234,37 @@ internal class DownloadManager private constructor(private val context: Applicat
                 model.key.cancel()
                 DownloadEngine.get().onInitialize(model.value)
                 iterator.remove()
-                Log.i(TAG, "delete download url")
+                printILog("delete download url")
                 isAllComplete()
                 return true
             } else {
                 DownloadEngine.get().onInitialize(buildModel)
             }
         }
-        Log.i(TAG, "download already delete")
+        printILog("download already delete")
         return false
     }
 
     @Synchronized
     private fun removeDownload(url: String, fileName: String): Boolean {
-        Log.i(TAG, "remove download url downloadCallHashMap：" + downloadCallHashMap.size)
+        printILog("remove download url downloadCallHashMap：" + downloadCallHashMap.size)
         val iterator = downloadCallHashMap.iterator()
         while (iterator.hasNext()) {
             val model = iterator.next()
             if (model.value.downLoadUrl == url && model.value.fileName == fileName) {
                 iterator.remove()
-                Log.i(TAG, "remove download url downloadCallHashMap2：" + downloadCallHashMap.size)
+                printILog("remove download url downloadCallHashMap2：" + downloadCallHashMap.size)
                 isAllComplete()
                 return true
             }
         }
-        Log.i(TAG, "remove download fail")
+        printILog("remove download fail")
         return false
     }
 
     private fun isAllComplete() {
         if (downloadCallHashMap.size == 0 && downloadConfig?.downloadNotification() != null) {
-            Log.i(TAG, "关闭下载服务 ")
+            printILog("关闭下载服务 ")
             DownloadService.destroy(context)
         }
     }
@@ -294,7 +294,7 @@ internal class DownloadManager private constructor(private val context: Applicat
     }
 
     private fun saveFile(dLFModel: DownLoadFileModel, inputString: InputStream, byteLength: Long) {
-        Log.i(TAG, "saveFile--> byteLength: $byteLength")
+        printILog("saveFile--> byteLength: $byteLength")
         if (byteLength == 0L && dLFModel.downLoadLength > 0) {
             DownloadEngine.get().onComplete(dLFModel)
             return  //已经下载好了
@@ -329,7 +329,7 @@ internal class DownloadManager private constructor(private val context: Applicat
             fos.close()
         } catch (e: java.lang.Exception) {
             if (e is StreamResetException || e is SocketException) {
-                Log.e(TAG, "saving cancel by user" + ", " + dLFModel.downLoadUrl)
+                printELog("saving cancel by user" + ", " + dLFModel.downLoadUrl)
                 if (DownLoadUtil.getExistFileProgress(
                         context,
                         dLFModel.fileName,
@@ -341,7 +341,7 @@ internal class DownloadManager private constructor(private val context: Applicat
                     DownloadEngine.get().onStop(dLFModel)
                 }
             } else {
-                Log.e(TAG, "saving onFailure: " + (e.message?: " IOException") + ", " + dLFModel.downLoadUrl)
+                printELog("saving onFailure: " + (e.message?: " IOException") + ", " + dLFModel.downLoadUrl)
                 DownloadEngine.get().onFail(dLFModel, e)
             }
             removeDownload(dLFModel.downLoadUrl, dLFModel.fileName)
@@ -356,5 +356,15 @@ internal class DownloadManager private constructor(private val context: Applicat
         if (downloadConfig?.downloadNotification() != null) {
             DownloadService.start(context, notification, downloadConfig?.downloadNotificationId())
         }
+    }
+
+    private fun printILog(message: String) {
+        if (downloadConfig?.isLogger() == true) {
+            Log.i(TAG, message)
+        }
+    }
+
+    private fun printELog(message: String) {
+        Log.e(TAG, message)
     }
 }

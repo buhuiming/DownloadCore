@@ -2,7 +2,6 @@ package com.bhm.sdk.support.utils
 
 import android.content.Context
 import android.text.TextUtils
-import android.util.Log
 import com.bhm.sdk.support.DownloadConfig
 import java.io.File
 import java.nio.charset.StandardCharsets
@@ -49,7 +48,6 @@ object DownLoadUtil {
             val downFile = File(file, fileName)
             if (downFile.length() == length) {
                 //已经下载过了
-                Log.e("DownLoadUtils", "open exist file.")
                 return true
             }
         }

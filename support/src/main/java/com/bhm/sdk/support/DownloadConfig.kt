@@ -26,6 +26,8 @@ class DownloadConfig private constructor(builder: Builder) {
 
     private var downloadOverWiFiOnly: Boolean = false
 
+    private var logger: Boolean = false
+
     companion object {
         private const val WRITE_TIMEOUT = 30L
         private const val READ_TIMEOUT = 30L
@@ -43,6 +45,7 @@ class DownloadConfig private constructor(builder: Builder) {
         downloadInTheBackground = builder.downloadInTheBackground
         notificationId = builder.notificationId
         downloadOverWiFiOnly = builder.downloadOverWiFiOnly
+        logger = builder.logger
     }
 
     fun getMaxDownloadSize(): Int {
@@ -73,8 +76,12 @@ class DownloadConfig private constructor(builder: Builder) {
         return notificationId
     }
 
-    fun downloadOverWiFiOnly(): Boolean {
+    fun isDownloadOverWiFiOnly(): Boolean {
         return downloadOverWiFiOnly
+    }
+
+    fun isLogger(): Boolean {
+        return logger
     }
 
     class Builder {
@@ -94,6 +101,8 @@ class DownloadConfig private constructor(builder: Builder) {
         internal var downloadInTheBackground: Notification? = null
 
         internal var downloadOverWiFiOnly: Boolean = false
+
+        internal var logger: Boolean = false
 
         fun setMaxDownloadSize(maxDownloadSize: Int): Builder {
             this.maxDownloadSize = maxDownloadSize
@@ -122,6 +131,11 @@ class DownloadConfig private constructor(builder: Builder) {
 
         fun setDownloadOverWiFiOnly(downloadOverWiFiOnly: Boolean): Builder {
             this.downloadOverWiFiOnly = downloadOverWiFiOnly
+            return this
+        }
+
+        fun setLogger(logger: Boolean): Builder {
+            this.logger = logger
             return this
         }
 

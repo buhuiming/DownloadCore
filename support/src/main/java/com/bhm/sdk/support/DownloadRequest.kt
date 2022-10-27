@@ -3,6 +3,8 @@ package com.bhm.sdk.support
 import android.app.Application
 import android.app.Notification
 import com.bhm.sdk.support.interfaces.IRequest
+import com.bhm.sdk.support.observer.DownloadEngine
+import com.bhm.sdk.support.observer.DownloadObserver
 
 /**
  * @author Buhuiming
@@ -31,7 +33,19 @@ class DownloadRequest(private val context: Application) : IRequest {
         return DownloadManager.getInstance(context)?.deleteDownload(url, fileName)
     }
 
-    fun updateNotification(notification: Notification?) {
+    override fun updateNotification(notification: Notification?) {
         DownloadManager.getInstance(context)?.updateNotification(notification)
+    }
+
+    override fun registerCallback(fileName: String, observer: DownloadObserver?) {
+        DownloadEngine.get().register(fileName, observer)
+    }
+
+    override fun unRegisterCallback(fileName: String) {
+        DownloadEngine.get().unRegister(fileName)
+    }
+
+    override fun close() {
+        DownloadEngine.get().close()
     }
 }

@@ -10,10 +10,10 @@ import com.bhm.sdk.support.WeakHandler
 
 /**
  * @author Buhuiming
- * @description:
+ * @description: 管理下载监听和回调
  * @date :2022/10/27 9:49
  */
-class DownloadEngine : Handler.Callback{
+internal class DownloadEngine : Handler.Callback{
 
     private var downloadObservable: DownloadObservable? = null
 
@@ -52,7 +52,7 @@ class DownloadEngine : Handler.Callback{
         mainHandler = WeakHandler(Looper.getMainLooper(), this)
     }
 
-    fun register(fileName: String, observer: DownloadObserver) {
+    fun register(fileName: String, observer: DownloadObserver?) {
         downloadObservable?.addDownloadObserver(fileName, observer)
     }
 
@@ -66,48 +66,60 @@ class DownloadEngine : Handler.Callback{
     }
 
     internal fun onInitialize(dLFModel: DownLoadFileModel) {
-        val message = Message.obtain()
-        message.what = INITIAL
-        message.obj = dLFModel
-        mainHandler?.sendMessage(message)
+        if (downloadObservable?.hasObservers() == true) {
+            val message = Message.obtain()
+            message.what = INITIAL
+            message.obj = dLFModel
+            mainHandler?.sendMessage(message)
+        }
     }
 
     internal fun onWaiting(dLFModel: DownLoadFileModel) {
-        val message = Message.obtain()
-        message.what = WAITING
-        message.obj = dLFModel
-        mainHandler?.sendMessage(message)
+        if (downloadObservable?.hasObservers() == true) {
+            val message = Message.obtain()
+            message.what = WAITING
+            message.obj = dLFModel
+            mainHandler?.sendMessage(message)
+        }
     }
 
     internal fun onStop(dLFModel: DownLoadFileModel) {
-        val message = Message.obtain()
-        message.what = STOP
-        message.obj = dLFModel
-        mainHandler?.sendMessage(message)
+        if (downloadObservable?.hasObservers() == true) {
+            val message = Message.obtain()
+            message.what = STOP
+            message.obj = dLFModel
+            mainHandler?.sendMessage(message)
+        }
     }
 
     internal fun onComplete(dLFModel: DownLoadFileModel) {
-        val message = Message.obtain()
-        message.what = COMPETE
-        message.obj = dLFModel
-        mainHandler?.sendMessage(message)
+        if (downloadObservable?.hasObservers() == true) {
+            val message = Message.obtain()
+            message.what = COMPETE
+            message.obj = dLFModel
+            mainHandler?.sendMessage(message)
+        }
     }
 
     internal fun onProgress(dLFModel: DownLoadFileModel) {
-        val message = Message.obtain()
-        message.what = DOWNING
-        message.obj = dLFModel
-        mainHandler?.sendMessage(message)
+        if (downloadObservable?.hasObservers() == true) {
+            val message = Message.obtain()
+            message.what = DOWNING
+            message.obj = dLFModel
+            mainHandler?.sendMessage(message)
+        }
     }
 
     internal fun onFail(dLFModel: DownLoadFileModel, throwable: Throwable) {
-        val message = Message.obtain()
-        val result: Array<Any?> = Array(2){}
-        result[0] = dLFModel
-        result[1] = throwable
-        message.what = FAIL
-        message.obj = result
-        mainHandler?.sendMessage(message)
+        if (downloadObservable?.hasObservers() == true) {
+            val message = Message.obtain()
+            val result: Array<Any?> = Array(2){}
+            result[0] = dLFModel
+            result[1] = throwable
+            message.what = FAIL
+            message.obj = result
+            mainHandler?.sendMessage(message)
+        }
     }
 
     override fun handleMessage(msg: Message): Boolean {

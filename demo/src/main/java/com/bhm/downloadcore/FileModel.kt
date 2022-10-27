@@ -1,7 +1,6 @@
 package com.bhm.downloadcore
 
 import com.bhm.sdk.support.DownLoadStatus
-import java.io.File
 
 /**
  * 下载文件的数据

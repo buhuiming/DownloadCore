@@ -19,7 +19,7 @@
         }
 
         dependencies {
-            implementation 'com.github.buhuiming xxx:1.0.0'
+            implementation 'com.github.buhuiming:DownloadCore:1.0.0'
         }
 
 #### 1、 初始化配置
@@ -30,14 +30,15 @@
             .setWriteTimeout(30)
             .setReadTimeout(30)
             .setConnectTimeout(15)
+            .setLogger(true)
             .setDownloadParentPath(parentPath)
             .setDownloadOverWiFiOnly(true) //仅WiFi时下载
-            .setDownloadInTheBackground(null)//传空，则退出APP，停止下载；传Notification，则开启前台Service下载
+            .setDownloadInTheBackground(null, 111111)//传空，则退出APP，停止下载；传Notification，则开启前台Service下载
             .build()
         downloadRequest?.newRequest(downloadConfig)
 
         //为每一个下载 添加下载监听
-        DownloadEngine.get().register(fileName, object : DownloadObserver(context) {
+        downloadRequest?.registerCallback(fileName, object : DownloadObserver(context) {
             override fun onInitialize(dLFModel: DownLoadFileModel) {
                 super.onInitialize(dLFModel)
                 Timber.d("onInitialize: " + dLFModel.downLoadUrl)
@@ -69,7 +70,7 @@
 
             override fun onFail(dLFModel: DownLoadFileModel, throwable: Throwable) {
                 super.onFail(dLFModel, throwable)
-                Timber.d("onFail" + throwable.message)
+                Timber.e("onFail" + throwable.message)
             }
         })
 #### 2、 添加、开始下载
@@ -91,9 +92,9 @@
         DownLoadUtil.getExistFileProgress(context, fileName, parentPath)
 
 #### 7、 取消某个下载监听，关闭所有下载监听
-        DownloadEngine.get().unRegister(fileName)
+        downloadRequest?.unRegisterCallback(fileName)
 
-        DownloadEngine.get().close()
+        downloadRequest?.close()
 
 #### 7、 更多请参考Demo
 

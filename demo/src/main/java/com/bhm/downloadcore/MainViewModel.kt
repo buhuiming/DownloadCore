@@ -12,7 +12,6 @@ import com.bhm.sdk.support.DownLoadFileModel
 import com.bhm.sdk.support.DownLoadStatus
 import com.bhm.sdk.support.DownloadConfig
 import com.bhm.sdk.support.DownloadRequest
-import com.bhm.sdk.support.observer.DownloadEngine
 import com.bhm.sdk.support.observer.DownloadObserver
 import com.bhm.sdk.support.utils.DownLoadUtil
 import com.bhm.support.sdk.common.BaseViewModel
@@ -55,9 +54,9 @@ class MainViewModel(private val context: Application) : BaseViewModel(context = 
             .setWriteTimeout(30)
             .setReadTimeout(30)
             .setConnectTimeout(15)
+            .setLogger(true)
             .setDownloadOverWiFiOnly(Constants.DOWNLOAD_OVER_WIFI_ONLY) //仅WiFi时下载
-            .setDownloadInTheBackground(downloadNotification, Constants.NOTIFICATION_ID)
-//            .setDownloadInTheBackground(null)//传空，则退出APP，停止下载
+            .setDownloadInTheBackground(downloadNotification, Constants.NOTIFICATION_ID)//传空，则退出APP，停止下载
             .setDownloadParentPath(parentPath)
             .build()
         downloadRequest?.newRequest(downloadConfig)
@@ -100,7 +99,7 @@ class MainViewModel(private val context: Application) : BaseViewModel(context = 
         downloadList.postValue(fileModelList)
 
         fileModelList.forEach {
-            DownloadEngine.get().register(it.fileName, object : DownloadObserver(context) {
+            downloadRequest?.registerCallback(it.fileName, object : DownloadObserver(context) {
                 override fun onInitialize(dLFModel: DownLoadFileModel) {
                     super.onInitialize(dLFModel)
                     Timber.d("onInitialize: " + dLFModel.downLoadUrl)
@@ -144,7 +143,7 @@ class MainViewModel(private val context: Application) : BaseViewModel(context = 
 
                 override fun onFail(dLFModel: DownLoadFileModel, throwable: Throwable) {
                     super.onFail(dLFModel, throwable)
-                    Timber.d("onFail" + throwable.message)
+                    Timber.e("onFail----" + throwable.message)
                     it.status = dLFModel.status
                     downloadList.postValue(fileModelList)
                 }
@@ -153,7 +152,7 @@ class MainViewModel(private val context: Application) : BaseViewModel(context = 
     }
 
     fun onDestroy() {
-        DownloadEngine.get().close()
+        downloadRequest?.close()
     }
 
     private fun getStatus(fileName: String): DownLoadStatus {
