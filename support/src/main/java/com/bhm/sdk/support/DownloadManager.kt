@@ -170,19 +170,24 @@ internal class DownloadManager private constructor(private val context: Applicat
             override fun onResponse(call: Call, response: Response) {
                 val body = response.body
                 //保存文件的地址和大小，这个大小最好后台直接返回
-                if (body != null) {
-                    if (fileModel.downLoadLength == 0L && body.contentLength() > 0) {
-                        SPUtil.put(
-                            context,
-                            SP_FILE_NAME,
-                            fileModel.fileName,
-                            body.contentLength()
-                        )
+                if (response.isSuccessful) {
+                    if (body != null) {
+                        if (fileModel.downLoadLength == 0L && body.contentLength() > 0) {
+                            SPUtil.put(
+                                context,
+                                SP_FILE_NAME,
+                                fileModel.fileName,
+                                body.contentLength()
+                            )
+                        }
+                        saveFile(fileModel, body.byteStream(), body.contentLength())
+                    } else {
+                        printELog("ResponseBody is null.")
+                        DownloadEngine.get().onFail(fileModel, Exception("ResponseBody is null."))
                     }
-                    saveFile(fileModel, body.byteStream(), body.contentLength())
                 } else {
-                    printELog("ResponseBody is null.")
-                    DownloadEngine.get().onFail(fileModel, Exception("ResponseBody is null."))
+                    printELog("isUnSuccessful")
+                    DownloadEngine.get().onFail(fileModel, Exception("{\"code\":${response.code},\"message\":\"${response.message}\"}"))
                 }
             }
         })

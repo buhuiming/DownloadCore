@@ -1,15 +1,15 @@
 package com.bhm.downloadcore
 
+import android.os.Build
+import android.view.WindowManager
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bhm.downloadcore.databinding.ActivityMainBinding
 import com.bhm.sdk.support.DownLoadStatus
 import com.bhm.sdk.support.utils.NetUtil
-import com.bhm.support.sdk.common.BaseVBActivity
-import com.bhm.support.sdk.core.AppTheme
-import com.bhm.support.sdk.interfaces.PermissionCallBack
 import timber.log.Timber
 
 class MainActivity : BaseVBActivity<MainViewModel, ActivityMainBinding>() {
@@ -20,18 +20,19 @@ class MainActivity : BaseVBActivity<MainViewModel, ActivityMainBinding>() {
 
     override fun initData() {
         super.initData()
-        AppTheme.setStatusBarColor(this, R.color.purple_500)
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+            window.statusBarColor = ContextCompat.getColor(this, R.color.purple_500)
+        }
         initList()
         initObserver()
-        requestPermission(Constants.PERMISSION_REQUEST_STORAGE, object : PermissionCallBack {
-            override fun agree() {
+        requestPermission(
+            Constants.PERMISSION_REQUEST_STORAGE,
+            {
 
-            }
-
-            override fun refuse(refusePermissions: ArrayList<String>) {
+            }, {
                 finish()
-            }
-        })
+            })
     }
 
     override fun initEvent() {

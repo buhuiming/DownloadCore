@@ -34,8 +34,6 @@
             android:textSize="14sp"
             android:padding="0dp"
             android:background="@color/purple_500"
-            app:bl_solid_color="@color/purple_500"
-            app:bl_corners_radius="8dp"
             android:text="全部开始"/>
 
         <Button
@@ -51,8 +49,6 @@
             android:textSize="14sp"
             android:padding="0dp"
             android:background="@color/purple_500"
-            app:bl_solid_color="@color/purple_500"
-            app:bl_corners_radius="8dp"
             android:text="全部暂停"/>
 
         <Button
@@ -67,8 +63,6 @@
             android:textSize="14sp"
             android:padding="0dp"
             android:background="@color/purple_500"
-            app:bl_solid_color="@color/purple_500"
-            app:bl_corners_radius="8dp"
             android:text="全部删除"/>
     </androidx.appcompat.widget.LinearLayoutCompat>
 </androidx.appcompat.widget.LinearLayoutCompat>

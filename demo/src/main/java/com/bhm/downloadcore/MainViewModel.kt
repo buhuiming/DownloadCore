@@ -14,8 +14,6 @@ import com.bhm.sdk.support.DownloadConfig
 import com.bhm.sdk.support.DownloadRequest
 import com.bhm.sdk.support.observer.DownloadObserver
 import com.bhm.sdk.support.utils.DownLoadUtil
-import com.bhm.support.sdk.common.BaseViewModel
-import com.bhm.support.sdk.utils.NotificationUtil
 import timber.log.Timber
 import java.io.File
 
