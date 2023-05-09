@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bhm.downloadcore.databinding.ActivityMainBinding
 import com.bhm.sdk.support.DownLoadStatus
 import com.bhm.sdk.support.utils.NetUtil
+import leakcanary.LeakCanary
 import timber.log.Timber
 
 class MainActivity : BaseVBActivity<MainViewModel, ActivityMainBinding>() {
@@ -20,6 +21,7 @@ class MainActivity : BaseVBActivity<MainViewModel, ActivityMainBinding>() {
 
     override fun initData() {
         super.initData()
+        LeakCanary.runCatching {  }
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
             window.statusBarColor = ContextCompat.getColor(this, R.color.purple_500)
