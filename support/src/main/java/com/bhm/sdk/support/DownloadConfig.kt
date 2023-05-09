@@ -28,6 +28,8 @@ class DownloadConfig private constructor(builder: Builder) {
 
     private var logger: Boolean = false
 
+    private var defaultHeader: HashMap<String, String>?
+
     companion object {
         private const val WRITE_TIMEOUT = 30L
         private const val READ_TIMEOUT = 30L
@@ -45,6 +47,7 @@ class DownloadConfig private constructor(builder: Builder) {
         downloadInTheBackground = builder.downloadInTheBackground
         notificationId = builder.notificationId
         downloadOverWiFiOnly = builder.downloadOverWiFiOnly
+        defaultHeader = builder.defaultHeader
         logger = builder.logger
     }
 
@@ -84,6 +87,8 @@ class DownloadConfig private constructor(builder: Builder) {
         return logger
     }
 
+    fun getDefaultHeader() = defaultHeader
+
     class Builder {
 
         internal var maxDownloadSize = 0
@@ -104,45 +109,46 @@ class DownloadConfig private constructor(builder: Builder) {
 
         internal var logger: Boolean = false
 
-        fun setMaxDownloadSize(maxDownloadSize: Int): Builder {
+        internal var defaultHeader: HashMap<String, String>? = null
+
+        fun setMaxDownloadSize(maxDownloadSize: Int) = apply {
             this.maxDownloadSize = maxDownloadSize
-            return this
         }
 
-        fun setDownloadParentPath(downloadParentPath: String?): Builder {
+        fun setDownloadParentPath(downloadParentPath: String?) = apply {
             this.downloadParentPath = downloadParentPath
-            return this
         }
 
-        fun setWriteTimeout(writeTimeout: Long): Builder {
+        fun setWriteTimeout(writeTimeout: Long) = apply {
             this.writeTimeout = writeTimeout
-            return this
         }
 
-        fun setReadTimeout(readTimeout: Long): Builder {
+        fun setReadTimeout(readTimeout: Long) = apply {
             this.readTimeout = readTimeout
-            return this
         }
 
-        fun setConnectTimeout(connectTimeout: Long): Builder {
+        fun setConnectTimeout(connectTimeout: Long) = apply {
             this.connectTimeout = connectTimeout
-            return this
         }
 
-        fun setDownloadOverWiFiOnly(downloadOverWiFiOnly: Boolean): Builder {
+        fun setDownloadOverWiFiOnly(downloadOverWiFiOnly: Boolean) = apply {
             this.downloadOverWiFiOnly = downloadOverWiFiOnly
-            return this
         }
 
-        fun setLogger(logger: Boolean): Builder {
+        fun setLogger(logger: Boolean) = apply {
             this.logger = logger
-            return this
         }
 
-        fun setDownloadInTheBackground(downloadInTheBackground: Notification?, notificationId: Int): Builder {
+        fun setDownloadInTheBackground(downloadInTheBackground: Notification?, notificationId: Int) = apply {
             this.downloadInTheBackground = downloadInTheBackground
             this.notificationId = notificationId
-            return this
+        }
+
+        /**
+         * 设置请求默认的header
+         */
+        fun setDefaultHeader(defaultHeader: HashMap<String, String>?) = apply {
+            this.defaultHeader = defaultHeader
         }
 
         fun build(): DownloadConfig {

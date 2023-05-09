@@ -58,6 +58,7 @@ class MainViewModel(private val context: Application) : BaseViewModel(context = 
             .setDownloadOverWiFiOnly(Constants.DOWNLOAD_OVER_WIFI_ONLY) //仅WiFi时下载
             .setDownloadInTheBackground(downloadNotification, Constants.NOTIFICATION_ID)//传空，则退出APP，停止下载
             .setDownloadParentPath(parentPath)
+            .setDefaultHeader(null)
             .build()
         downloadRequest?.newRequest(downloadConfig)
     }

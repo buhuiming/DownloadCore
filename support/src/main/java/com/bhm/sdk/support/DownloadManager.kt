@@ -57,6 +57,7 @@ internal class DownloadManager private constructor(private val context: Applicat
             .writeTimeout(config.getWriteTimeout(), TimeUnit.SECONDS)
             .readTimeout(config.getReadTimeout(), TimeUnit.SECONDS)
             .connectTimeout(config.getConnectTimeout(), TimeUnit.SECONDS)
+            .addInterceptor(HeaderInterceptor().make(config))
             .build()
         okHttpClient?.dispatcher?.maxRequestsPerHost = config.getMaxDownloadSize() //每个主机最大请求数为
         okHttpClient?.dispatcher?.maxRequests = config.getMaxDownloadSize() //最大并发请求数为

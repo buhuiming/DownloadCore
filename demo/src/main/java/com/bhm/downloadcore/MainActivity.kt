@@ -108,18 +108,12 @@ class MainActivity : BaseVBActivity<MainViewModel, ActivityMainBinding>() {
                 DownLoadStatus.INITIAL -> {
                     isAllStart = true
                 }
-                DownLoadStatus.STOP -> {
-                    isAllStart = true
-                    isAllDelete = true
-                }
+                DownLoadStatus.STOP,
                 DownLoadStatus.FAIL -> {
                     isAllStart = true
                     isAllDelete = true
                 }
-                DownLoadStatus.WAITING -> {
-                    isAllPause = true
-                    isAllDelete = true
-                }
+                DownLoadStatus.WAITING,
                 DownLoadStatus.DOWNING -> {
                     isAllPause = true
                     isAllDelete = true
