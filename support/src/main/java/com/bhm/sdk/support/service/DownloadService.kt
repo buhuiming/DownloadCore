@@ -58,7 +58,7 @@ internal class DownloadService : Service() {
 
     override fun onDestroy() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            stopForeground(true)
+            stopForeground(STOP_FOREGROUND_REMOVE)
         }
         stopSelf()
         super.onDestroy()

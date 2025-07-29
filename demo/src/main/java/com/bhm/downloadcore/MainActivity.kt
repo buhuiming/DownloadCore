@@ -1,9 +1,10 @@
 package com.bhm.downloadcore
 
-import android.os.Build
-import android.view.WindowManager
+import android.view.View
 import android.widget.Toast
-import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -22,14 +23,33 @@ class MainActivity : BaseVBActivity<MainViewModel, ActivityMainBinding>() {
     override fun initData() {
         super.initData()
         LeakCanary.runCatching {  }
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-            window.statusBarColor = ContextCompat.getColor(this, R.color.purple_500)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        val controller = WindowCompat.getInsetsController(
+            window,
+            window.decorView
+        )
+        controller.isAppearanceLightStatusBars = true
+        controller.isAppearanceLightNavigationBars = true
+        val view = rootView
+        val originalTopPadding: Int = view.paddingTop
+        val originalLeftPadding: Int = view.getPaddingLeft()
+        val originalRightPadding: Int = view.getPaddingRight()
+        val originalBottomPadding: Int = view.paddingBottom
+        ViewCompat.setOnApplyWindowInsetsListener(view) { v: View, insets: WindowInsetsCompat ->
+            val statusBars = insets.getInsets(WindowInsetsCompat.Type.statusBars())
+            v.setPadding(
+                originalLeftPadding,
+                statusBars.top + originalTopPadding,
+                originalRightPadding,
+                originalBottomPadding
+            )
+            insets
         }
+        ViewCompat.requestApplyInsets(view)
         initList()
         initObserver()
         requestPermission(
-            Constants.PERMISSION_REQUEST_STORAGE,
+            Constants.getReadPermissionArray(application),
             {
 
             }, {

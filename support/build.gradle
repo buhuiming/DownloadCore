@@ -1,14 +1,44 @@
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
+    id 'maven-publish'
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            // 这个mavenJava可以随便填，只是一个任务名字而已
+            // MavenPublication必须有，这个是调用的任务类
+            mavenJava(MavenPublication) {
+                // 这里头是artifacts的配置信息，不填会采用默认的
+                groupId = 'com.github.buhuiming'
+                artifactId = 'DownloadCore'
+                version = '1.1.0'
+
+                from components.release
+                if (!project.plugins.hasPlugin('kotlin-android')) {
+                    artifact tasks.named("androidSourcesJar").get()
+                }
+            }
+        }
+    }
+    // 显式声明任务依赖关系
+    tasks.matching { it.name.startsWith("generateMetadataFileFor") }.configureEach {
+        dependsOn tasks.named("androidSourcesJar")
+    }
+}
+// 用于打包源代码的任务
+tasks.register('androidSourcesJar', Jar) {
+    archiveClassifier.set('sources')
+    from android.sourceSets.main.java.srcDirs
 }
 
 android {
-    compileSdk 33
+    compileSdk 35
 
     defaultConfig {
         minSdk 21
-        targetSdk 33
+        targetSdk 35
 
         consumerProguardFiles "consumer-rules.pro"
     }
@@ -20,14 +50,15 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
     }
+    namespace = "com.bhm.sdk.support"
 }
 
 dependencies {
-    api 'com.squareup.okhttp3:okhttp:4.11.0'
+    api 'com.squareup.okhttp3:okhttp:4.12.0'
 }
