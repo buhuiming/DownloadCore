@@ -1,4 +1,5 @@
-# DownloadCore
+# DownloadCore 
+### 当前版本[![](https://jitpack.io/v/buhuiming/DownloadCore.svg)](https://jitpack.io/#buhuiming/DownloadCore) 
 
 #### 支持设置多文件同时下载
 #### 支持设置仅WiFi时下载
