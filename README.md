@@ -20,7 +20,7 @@
         }
 
         dependencies {
-            implementation 'com.github.buhuiming:DownloadCore:1.1.0'
+            implementation 'com.github.buhuiming:DownloadCore:1.4.0'
         }
 
 #### 1、 初始化配置

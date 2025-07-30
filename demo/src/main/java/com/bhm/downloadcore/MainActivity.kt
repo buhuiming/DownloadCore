@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bhm.downloadcore.databinding.ActivityMainBinding
 import com.bhm.sdk.support.DownLoadStatus
 import com.bhm.sdk.support.utils.NetUtil
-import leakcanary.LeakCanary
 import timber.log.Timber
 
 class MainActivity : BaseVBActivity<MainViewModel, ActivityMainBinding>() {
@@ -22,7 +21,6 @@ class MainActivity : BaseVBActivity<MainViewModel, ActivityMainBinding>() {
 
     override fun initData() {
         super.initData()
-        LeakCanary.runCatching {  }
         WindowCompat.setDecorFitsSystemWindows(window, false)
         val controller = WindowCompat.getInsetsController(
             window,
